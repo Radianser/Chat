@@ -1,0 +1,35 @@
+{
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongodb": "^7.1.0",
+    "mysql2": "^3.18.2",
+    "nodemailer": "^8.0.7",
+    "socket.io": "^4.8.3"
+  },
+  "scripts": {
+    "start": "node --env-file=./config/.env index.js",
+    "dev": "node --watch --env-file=./config/.env index.js"
+  },
+  "imports": {
+    "#models/*.js": "./models/*.js",
+    "#config/*.js": "./config/*.js",
+    "#controllers/*.js": "./controllers/*.js",
+    "#middlewares/*.js": "./middlewares/*.js",
+    "#utils/*.js": "./utils/*.js",
+    "#validation/*.js": "./validation/*.js"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.2"
+  }
+}

@@ -1,0 +1,2 @@
+http://localhost:3000 — это наш Express сервер. Он не умеет отдавать React приложение, поэтому показывал "Cannot GET /"
+http://localhost:5173 — это наш Vite dev server с React приложением. Именно его нужно открывать в браузере!
