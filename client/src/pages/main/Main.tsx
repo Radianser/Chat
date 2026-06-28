@@ -1,19 +1,16 @@
-import { useState, useEffect } from 'react'
-// import reactLogo from '@assets/react.svg'
-// import viteLogo from '@assets/vite.svg'
-// import heroImg from '@assets/hero.png'
-// import { Link } from 'react-router-dom'
-import '@src/main.css'
-import './style.css'
+import { useState, useEffect } from 'react';
 import { useUserStore } from '@src/stores/user/userStore';
 import Authorization from '@pages/auth/Authorization';
 import Registration from '@pages/auth/Registration';
 import Chat from '@pages/chat/Chat';
 import ChatList from '@pages/chat/ChatList';
+import '@src/App.css';
+import './style.css';
 
 // import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей
 // import 'bootstrap'; // Импорт логики (JS)
 
+// переименовать в welcome
 export default function Main() {
     const { getAuthUser, resetUser, logoutUser } = useUserStore.getState(); // useUserStore.getState(); это ломает реактивность, так можно импортировать только функции
     const state = useUserStore((state) => state.state); // для сохранения реактивности при изменении state
@@ -58,7 +55,7 @@ export default function Main() {
         );
     }
 
-    if (state.id == 0) {
+    if (!state.id) {
         return (
             <div className='chat-auth'>
                 <div className='auth-plate'>
@@ -73,6 +70,7 @@ export default function Main() {
         );
     }
 
+    // это убрать, сделать редирект сюда, назвать main
     return (
         <div className='chat-app'>
             <div className='chat-header'>

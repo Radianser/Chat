@@ -1,19 +1,35 @@
 import { useUserStore } from '@src/stores/user/userStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './style.css'
 
 export default function Registration() {
     const { registrateUser, clearError, clearAllErrors } = useUserStore.getState();
     const errors = useUserStore((store) => store.state.errors);
 
+    const [isSubmit, setIsSubmit] = useState(false);
+    const [message, setMessage] = useState('');
+
     useEffect(() => {
         return clearAllErrors();
     }, []);
 
-    function handleSubmit(e: any) {
+    async function handleSubmit(e: any) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        registrateUser(formData);
+        let response = await registrateUser(formData);
+
+        if (response.validated) {
+            setMessage(() => response.message);
+            setIsSubmit(() => true);
+        }
+    }
+
+    if (isSubmit) {
+        return (
+            <div className='reset-message'>
+                {message}
+            </div>
+        );
     }
 
     return (
@@ -35,7 +51,7 @@ export default function Registration() {
                     title="username@site.com"
                     placeholder="Email"
                     onFocus={() => clearError('email')}
-                    className={errors['email'] ? 'input-error' : ''}
+                    className={errors.email?.length ? 'input-error' : ''}
                 />
                 <input
                     type="password"
@@ -45,7 +61,7 @@ export default function Registration() {
                     placeholder="Password"
                     title="Password should be at least of 6 characters, digits and etc."
                     onFocus={() => clearError('password')}
-                    className={errors['password'] ? 'input-error' : ''}
+                    className={errors.password?.length ? 'input-error' : ''}
                 />
                 <input
                     type="password"
@@ -55,9 +71,17 @@ export default function Registration() {
                     placeholder="Password confirmation"
                     title="Password confirmation"
                     onFocus={() => clearError('confirm')}
-                    className={errors['confirm'] ? 'input-error' : ''}
+                    className={errors.confirm?.length ? 'input-error' : ''}
                 />
                 <button type="submit" className="form-submit font-semibold">Register</button>
+
+                <div className='error-messages'>
+                    {Object.entries(errors).map(([key, messages]) => (
+                        messages.map((message, index) => (
+                            <div key={`${key}-${index}`}>{message}</div>
+                        ))
+                    ))}
+                </div>
             </form>
         </>
     );

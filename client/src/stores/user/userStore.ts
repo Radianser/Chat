@@ -28,11 +28,11 @@ export const useUserStore = create<iUserStore>((set, get) => ({
         }
 	},
 
-	authorizeUser: async (data: FormData) => {
+	authorizeUser: async (formData: FormData) => {
 		try {
             const response: any = await api.authorizeUser({
 				method: 'POST',
-                data: data
+                data: formData
 			});
 
 			if (response.data.validated) {
@@ -40,14 +40,19 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 					state: { 
 						...store.state, 
 						...response.data.user,
-						errors: {}
+						errors: {
+							...store.state.errors
+						}
 					}
 				}));
 			} else {
 				set((store) => ({
 					state: { 
-						...store.state, 
-						errors: response.data.errors
+						...store.state,
+						errors: {
+							...store.state.errors,
+							...response.data.errors
+						}
 					}
 				}));
 			}
@@ -56,18 +61,26 @@ export const useUserStore = create<iUserStore>((set, get) => ({
         }
 	},
 
-	registrateUser: async (data: FormData) => {
+	registrateUser: async (formData: FormData) => {
 		try {
-            const response: any = await api.registrateUser({
+            const { data } = await api.registrateUser({
 				method: 'POST',
-                data: data
+                data: formData
 			});
 
-			if (response.data.validated) {
-				
-			} else {
-				
+			if (Object.keys(data.errors).length) {
+				set((store) => ({
+					state: {
+						...store.state,
+						errors: {
+							...store.state.errors,
+							...data.errors
+						}
+					}
+				}));
 			}
+
+			return data;
         } catch (error) {
             console.error('Ошибка запроса:', error);
         }
@@ -119,7 +132,10 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 			return {
 				state: {
 					...store.state,
-					errors: restErrors
+					errors: {
+						...restErrors,
+						[fieldName]: []
+					}
 				}
 			};
 		});
@@ -164,7 +180,10 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 				set((store) => ({
 					state: {
 						...store.state,
-						errors: data.errors
+						errors: {
+							...store.state.errors,
+							...data.errors
+						}
 					}
 				}));
 			}
@@ -187,14 +206,19 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 					state: { 
 						...store.state, 
 						...response.data.user,
-						errors: {}
+						errors: {
+							...store.state.errors
+						}
 					}
 				}));
 			} else {
 				set((store) => ({
 					state: { 
 						...store.state, 
-						errors: response.data.errors
+						errors: {
+							...store.state.errors,
+							...response.data.errors
+						}
 					}
 				}));
 			}

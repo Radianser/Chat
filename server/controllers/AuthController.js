@@ -44,18 +44,18 @@ export default class AuthController {
     async registrate_user(request, response, next) {
         let validated = await (new RegFormValidation).check(request.body);
 
-        if(validated.checked) {
-            const password = await bcrypt.hash(request.body.password, 10);
-            const id = await (new User).createUser(request.body.name, request.body.email, password);
+        if(validated.success) {
+            const password = await bcrypt.hash(validated.password.value, 10);
+            const id = await (new User).createUser(request.body.name, validated.email.value, password);
             const url = this.create_url_link('verification', id);
 
-            (new MailController).send('Registration', request.body.email, url);
-            validated.success = "Мы отправили вам письмо на электронную почту для завершения регистрации.";
+            (new MailController).send('registration', validated.email.value, url);
+            validated.message = "Мы отправили вам письмо на электронную почту для завершения регистрации.";
         }
 
         return response.status(200).type('application/json').send({
-            'validated': validated.checked,
-            'message': validated.success || '',
+            'validated': validated.success,
+            'message': validated.message || '',
             'errors': validated.errors
         });
     }
@@ -68,19 +68,17 @@ export default class AuthController {
             const url = this.create_url_link('change-password', user.id);
 
             (new MailController).send('password_restore', user.email, url);
-            validated.email.message = "Мы отправили вам письмо на электронную почту для сброса пароля.";
+            validated.message = "Мы отправили вам письмо на электронную почту для сброса пароля.";
         }
 
         return response.status(200).type('application/json').send({
             'validated': validated.email.success,
-            'message': validated.email.message || '',
+            'message': validated.message || '',
             'errors': validated.errors
         });
     }
 
     async change_password(request, response, next) {
-        // console.log('request.body.password, request.body.confirm: ', request.body.password, request.body.confirm);
-
         let validated = await (new PassFormValidation).check(request.body.password, request.body.confirm);
 
         if(validated.success) {
@@ -103,7 +101,7 @@ export default class AuthController {
         if(token && Date.now() - new Date(token.created_at).getTime() < 15 * 60 * 1000) {
             const userModel = new User();
             await userModel.verifyUser(request.body.user_id);
-            const user = await userModel.getUser(request.body.user_id);
+            const user = await userModel.findById(request.body.user_id);
 
             await regenerateSession(request, next);
             request.session.user = user;

@@ -1,46 +1,26 @@
-// import { loader as verificationLoader } from '@pages/verification/loader.tsx';
-// import type { LoaderFunctionArgs, ActionFunctionArgs } from 'react-router-dom';
-import type { LoaderFunctionArgs } from 'react-router-dom';
+import { lazy } from 'react';
+
+const Main = lazy(() => import('@pages/main/Main.tsx'));
+const ForgotPassword = lazy(() => import('@pages/auth/ForgotPassword.tsx'));
+const ChangePassword = lazy(() => import('@pages/auth/ChangePassword.tsx'));
+const UserVerification = lazy(() => import('@src/pages/auth/UserVerification'));
 
 const routes = [
     {
         path: '/',
-        // loader: listLoader,
-        // action: listAction,
-        lazy: async () => {
-            const module = await import('@pages/main/Main.tsx');
-            return { Component: module.default };
-        }
+        element: <Main />
     },
     {
         path: '/forgot-password',
-        // loader: editLoader,
-        // action: editAction,
-        lazy: async () => {
-            const module = await import('@pages/auth/ForgotPassword.tsx');
-            return { Component: module.default };
-        }
+        element: <ForgotPassword />
     },
     {
         path: '/change-password/:id/:token',
-        // loader: editLoader,
-        // action: editAction,
-        loader: ({ params }: LoaderFunctionArgs) => ({ id: params.id, token: params.token }),
-        lazy: async () => {
-            const module = await import('@pages/auth/ChangePassword.tsx');
-            return { Component: module.default };
-        }
+        element: <ChangePassword />
     },
     {
         path: '/verification/:id/:token',
-        // loader: await import('@pages/verification/loader.tsx'),
-        // loader: verificationLoader,
-        // action: editAction,
-        loader: ({ params }: LoaderFunctionArgs) => ({ id: params.id, token: params.token }),
-        lazy: async () => {
-            const module = await import('@src/pages/auth/UserVerification');
-            return { Component: module.default };
-        }
+        element: <UserVerification />
     },
 ];
 

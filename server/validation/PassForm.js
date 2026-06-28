@@ -27,15 +27,13 @@ export default class PassFormValidation {
             }
         };
 
-        console.log('password, confirm: ', password, confirm);
-
         const validated_password = await this.#validation.check_password_reg(password);
         validated = {
             ...validated,
             ...validated_password,
             errors: {
                 ...validated.errors,
-                password: validated_password.errors
+                ...validated_password.errors
             }
         };
 
@@ -45,7 +43,7 @@ export default class PassFormValidation {
             ...validated_confirm,
             errors: {
                 ...validated.errors,
-                confirm: validated_confirm.errors
+                ...validated_confirm.errors
             }
         };
 

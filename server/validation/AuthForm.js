@@ -3,13 +3,13 @@ import User from '#models/User.js';
 import FieldsValidation from '#validation/FieldsValidation.js'
 
 export default class AuthFormValidation {
-    #user = null;
+    #validation = null;
 
-    constructor() {}
+    constructor() {
+        this.#validation = new FieldsValidation();
+    }
 
     async check({ email, password }) {
-        const validation = new FieldsValidation();
-
         let validated = {
             user: null,
             success: false,
@@ -27,23 +27,23 @@ export default class AuthFormValidation {
             }
         };
 
-        const validated_email = await validation.check_email_auth(email);
+        const validated_email = await this.#validation.check_email_auth(email);
         validated = {
             ...validated,
             ...validated_email,
             errors: {
                 ...validated.errors,
-                email: validated_email.errors
+                ...validated_email.errors
             }
         };
 
-        const validated_password = await validation.check_password_auth(email, password);
+        const validated_password = await this.#validation.check_password_auth(email, password);
         validated = {
             ...validated,
             ...validated_password,
             errors: {
                 ...validated.errors,
-                password: validated_password.errors
+                ...validated_password.errors
             }
         };
 

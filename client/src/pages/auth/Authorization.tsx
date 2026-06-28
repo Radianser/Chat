@@ -21,7 +21,7 @@ export default function Authorization() {
             <form onSubmit={handleSubmit} className="authorization-form">
                 <input
                     type="email"
-                    maxLength={101}
+                    maxLength={100}
                     required
                     title="username@site.com"
                     name="email"
@@ -43,7 +43,7 @@ export default function Authorization() {
                 <div className='error-messages'>
                     {Object.entries(errors).map(([key, messages]) => (
                         messages.map((message, index) => (
-                            <p key={`${key}-${index}`}>{message}</p>
+                            <div key={`${key}-${index}`}>{message}</div>
                         ))
                     ))}
                 </div>

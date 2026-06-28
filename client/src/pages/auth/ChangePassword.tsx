@@ -1,11 +1,11 @@
-import '@src/main.css'
+import '@src/App.css'
 import './style.css'
 import { useUserStore } from '@src/stores/user/userStore';
 import { useEffect, useState } from 'react';
-import { useLoaderData } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function ChangePassword() {
-    const { id, token } = useLoaderData();
+    const { id, token } = useParams<{ id: string; token: string }>();
     const { changePassword, verifyToken, clearError, clearAllErrors } = useUserStore.getState();
     const errors = useUserStore((store) => store.state.errors);
 
@@ -34,12 +34,8 @@ export default function ChangePassword() {
         const formData = new FormData(e.target);
         let response = await changePassword(formData);
 
-        console.log('response.validated: ', response.validated);
-
         if (response.validated) {
             clearAllErrors();
-
-            console.log(11111);
             window.location.href = '/';
         }
     }
@@ -75,7 +71,7 @@ export default function ChangePassword() {
                         placeholder="Password"
                         title="Password should be at least of 6 characters, digits and etc."
                         onFocus={() => clearError('password')}
-                        className={errors['password'] ? 'input-error' : ''}
+                        className={errors.password?.length ? 'input-error' : ''}
                     />
                     <input
                         type="password"
@@ -85,7 +81,7 @@ export default function ChangePassword() {
                         placeholder="Password confirmation"
                         title="Password confirmation"
                         onFocus={() => clearError('confirm')}
-                        className={errors['confirm'] ? 'input-error' : ''}
+                        className={errors.confirm?.length ? 'input-error' : ''}
                     />
                     <input
                         type='hidden'
@@ -95,8 +91,10 @@ export default function ChangePassword() {
                     <button type="submit" className="form-submit font-semibold">Submit</button>
 
                     <div className='error-messages'>
-                        {Object.keys(errors).map((key, index) => (
-                            <p key={index}>{errors[key]}</p>
+                        {Object.entries(errors).map(([key, messages]) => (
+                            messages.map((message, index) => (
+                                <div key={`${key}-${index}`}>{message}</div>
+                            ))
                         ))}
                     </div>
                 </form>

@@ -8,8 +8,8 @@ export interface iUserState {
 export interface iUserStore {
 	state: iUserState,
 	getAuthUser: () => Promise<void>,
-	authorizeUser: (data: FormData) => void,
-	registrateUser: (data: FormData) => void,
+	authorizeUser: (formData: FormData) => void,
+	registrateUser: (formData: FormData) => Promise<any>,
 	restorePassword: (formData: FormData) => Promise<any>,
 	changePassword: (data: FormData) => Promise<any>,
 

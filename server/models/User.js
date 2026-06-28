@@ -80,6 +80,17 @@ export default class User {
         }
     }
 
+    async findById(id) {
+        try {
+            let query = `SELECT * FROM users WHERE id = ?`;
+            const [rows] = await db.mysql.query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
     async findByEmail(email) {
         try {
             let query = `SELECT * FROM users WHERE email = ?`;

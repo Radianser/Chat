@@ -1,11 +1,11 @@
-import '@src/main.css'
+import '@src/App.css'
 import './style.css'
 import { useUserStore } from '@src/stores/user/userStore';
 import { useEffect, useState } from 'react';
-import { useLoaderData } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function UserVerification() {
-    const { id, token } = useLoaderData();
+    const { id, token } = useParams<{ id: string; token: string }>();
     const { verifyToken, clearAllErrors } = useUserStore.getState();
 
     const [isExpired, setIsExpired] = useState(false);
@@ -16,7 +16,7 @@ export default function UserVerification() {
             try {
                 let response = await verifyToken({ user_id: Number(id), token });
                 if (response.code === 'ERROR') {
-                    setMessage(() => response.message);
+                    setMessage(() => response.result);
                     setIsExpired(() => true);
                 } else {
                     window.location.href = '/';

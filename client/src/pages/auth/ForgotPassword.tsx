@@ -1,4 +1,4 @@
-import '@src/main.css'
+import '@src/App.css'
 import './style.css'
 import { useUserStore } from '@src/stores/user/userStore';
 import { useState } from 'react';
@@ -52,13 +52,15 @@ export default function ForgotPassword() {
                         title="username@site.com"
                         placeholder="Email"
                         onFocus={() => clearError('email')}
-                        className={errors['email'] ? 'input-error' : ''}
+                        className={errors.email?.length ? 'input-error' : ''}
                     />
                     <button type="submit" className="form-submit font-semibold">Restore</button>
 
                     <div className='error-messages'>
-                        {Object.keys(errors).map((key, index) => (
-                            <p key={index}>{errors[key]}</p>
+                        {Object.entries(errors).map(([key, messages]) => (
+                            messages.map((message, index) => (
+                                <div key={`${key}-${index}`}>{message}</div>
+                            ))
                         ))}
                     </div>
                 </form>
