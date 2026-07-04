@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import expressSession from 'express-session';
 import cookieParser from 'cookie-parser';
 import { initRoutes } from '#config/routes.js';
@@ -20,6 +21,7 @@ app.use(cors({
     credentials: true
 })); // Чтобы фронтенд мог делать запросы к бэку
 
+app.use('/resources', express.static(path.join(process.cwd(), 'resources')));
 app.use(express.json()); // Для JSON-данных (application/json)
 app.use(express.urlencoded({ extended: true })); // Для обычных форм (application/x-www-form-urlencoded)
 app.use(cookieParser(process.env.secret));
