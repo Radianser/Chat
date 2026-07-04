@@ -8,6 +8,11 @@ export default function ChatSearch() {
     const [inputValue, setInputValue] = useState('');
 
     function handleInput(e: any) {
+        if (e.target.value == '') {
+            handleClear();
+            return;
+        }
+
         setInputValue(() => e.target.value);
         findChats(inputValue);
     }
