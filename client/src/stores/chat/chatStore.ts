@@ -52,7 +52,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 	findChats(name: string) {
 		// request
 
-		console.log("Lets imagine we've found chats");
+		console.log("Lets imagine we've found chats: ", name);
 
 		let chats = [
 			{id: 4, name: 'Bob', img: '/resources/5.png', message: "agth sefw3 3qr", messageTime: 'Jul 2', messageType: 'income', messageStatus: null},
