@@ -18,16 +18,16 @@ export default function ChatList() {
         <div className="chat-list-wrapper">
             <ChatSearch/>
             {
-                chatStore.userChats.length > 0 && !chatStore.searchedChats.length
+                chatStore.userChats.length > 0 && !chatStore.searchedChats.length && !chatStore.searchErrors.length
                     ?   <div className="chat-list">
                             {chatStore.userChats.map(chat => <ChatItem chat={chat} key={chat.id} />)}
                         </div>
-                    :   chatStore.searchedChats.length > 0
+                    :   chatStore.searchedChats.length > 0 && !chatStore.searchErrors.length
                             ?   <div className="chat-list">
                                     {chatStore.searchedChats.map(chat => <ChatItem chat={chat} key={chat.id} />)}
                                 </div>
                             :   <div className="chat-list empty">
-                                    There are no chats yet
+                                    No chats found
                                 </div>
             }
         </div>

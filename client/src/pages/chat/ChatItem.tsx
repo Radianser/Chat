@@ -1,11 +1,18 @@
+import { useChatStore } from '@src/stores/chat/chatStore';
 import checkMark from '@assets/checkMark.svg';
 import doneMark from '@assets/doneMark.svg';
 
 const defaultUserImg = 'http://localhost:3000/resources/1.png';
 
 export default function ChatItem({ chat }:any) {
+    const setCurrentChat = useChatStore(store => store.setCurrentChat);
+
+    function handleClick(chat:any) {
+        setCurrentChat(chat);
+    }
+
     return (
-        <div className="chat-info" key={chat.id}>
+        <div className="chat-list-info" key={chat.id} onClick={() => handleClick(chat)}>
             <img 
                 src={
                         chat.img 
@@ -15,16 +22,16 @@ export default function ChatItem({ chat }:any) {
                 alt="" 
             />
             <div>
-                <div className="chat-user-info">
-                    <div className="chat-user-name">
+                <div className="chat-list-user-info">
+                    <div className="chat-list-user-name">
                         {chat.name}
                     </div>
-                    <div className="chat-user-last-message">
+                    <div className="chat-list-user-last-message">
                         {chat.message}
                     </div>
                 </div>
-                <div className="chat-message-info">
-                    <div className="chat-message-status">
+                <div className="chat-list-message-info">
+                    <div className="chat-list-message-status">
                         {
                             chat.messageType == 'outcome'
                                 ? chat.messageStatus == 'delivered'
@@ -33,7 +40,7 @@ export default function ChatItem({ chat }:any) {
                                 : ''
                         }
                     </div>
-                    <div className="chat-message-time">
+                    <div className="chat-list-message-time">
                         {chat.messageTime}
                     </div>
                 </div>

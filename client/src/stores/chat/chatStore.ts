@@ -1,10 +1,13 @@
 import { create } from 'zustand';
 import type { iChatStore } from '@stores/chat/interfaces';
+import * as api from '@api/rest/chat';
 
 export const useChatStore = create<iChatStore>((set, get) => ({
 	state: {
 		userChats: [],
-		searchedChats: []
+		currentChat: {},
+		searchedChats: [],
+		searchErrors: []
 	},
 
 	getUserChats() {
@@ -35,7 +38,8 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 			state: {
 				...store.state,
 				userChats: [],
-				searchedChats: []
+				searchedChats: [],
+				searchErrors: []
 			}
 		}));
 	},
@@ -44,28 +48,56 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		set(store => ({
 			state: {
 				...store.state,
-				searchedChats: []
+				searchedChats: [],
+				searchErrors: []
 			}
 		}));
 	},
 
-	findChats(name: string) {
-		// request
+	async findChats(name: string) {
+		if (name.length < 2) return;
 
-		console.log("Lets imagine we've found chats: ", name);
+		try {
+			const { data } = await api.findChats({
+				method: 'POST',
+				data: {
+					string: name
+				}
+			});
 
-		let chats = [
-			{id: 4, name: 'Bob', img: '/resources/5.png', message: "agth sefw3 3qr", messageTime: 'Jul 2', messageType: 'income', messageStatus: null},
-			{id: 5, name: 'Emma', img: '/resources/6.png', message: "ukj rtyh", messageTime: 'Jun 30', messageType: 'outcome', messageStatus: 'delivered'}
-		];
+			if (data.chats.length && !data.errors.length) {
+				set(store => ({
+					state: {
+						...store.state,
+						searchedChats: [
+							...data.chats
+						],
+						searchErrors: []
+					}
+				}));
+			} else {
+				set(store => ({
+					state: {
+						...store.state,
+						searchedChats: [],
+						searchErrors: [
+							...data.errors
+						]
+					}
+				}));
+			}
 
+			// console.log('store.state: ', get().state);
+		} catch (error) {
+			console.error('Ошибка запроса:', error);
+		}
+	},
 
+	setCurrentChat(chat:Record<string, any>) {
 		set(store => ({
 			state: {
 				...store.state,
-				searchedChats: [
-					...chats
-				]
+				currentChat: chat
 			}
 		}));
 	}

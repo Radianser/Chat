@@ -1,22 +1,24 @@
 import MagnifierIcon from '@assets/magnifier.svg?react';
 import CloseIcon from '@assets/close.svg?react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useChatStore } from '@stores/chat/chatStore.ts';
+import { debounce } from '@utils/debounce.ts';
 
 export default function ChatSearch() {
     const { findChats, clearSearchedChats } = useChatStore.getState();
     const [inputValue, setInputValue] = useState('');
+    const findChatsDebounce = useRef(debounce(findChats, 500)); // useRef чтобы не пересоздавалась
 
     function handleInput(e: any) {
         const value = e.target.value;
 
-        if (e.target.value == '') {
+        if (value == '') {
             handleClear();
             return;
         }
 
         setInputValue(() => value);
-        findChats(value);
+        findChatsDebounce.current(value);
     }
 
     function handleClear() {

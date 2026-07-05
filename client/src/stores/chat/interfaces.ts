@@ -1,10 +1,13 @@
 export interface iChatState {
 	userChats: Array<any>,
-	searchedChats: Array<any>
+	currentChat: Record<string, any>,
+	searchedChats: Array<any>,
+	searchErrors: Array<any>,
 }
 
 export interface iChatStore {
 	state: iChatState,
+	setCurrentChat: (chat:Record<string, any>) => void
 	getUserChats: () => void,
 	clearAllChats: () => void,
 	clearSearchedChats: () => void,

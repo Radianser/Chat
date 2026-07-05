@@ -7,6 +7,7 @@ interface RequestParams {
 }
 
 export const registerUser = ({ data, method }: RequestParams) => makeRequest({
+    // возможно не работает, проверить
     url: `/user/register`,
     method: method,
     data: data

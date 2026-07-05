@@ -1,6 +1,13 @@
 import bcrypt from 'bcrypt';
 import User from '#models/User.js';
 
+export class ValidationError extends Error {
+    constructor(errors) {
+        super('Validation failed');
+        this.errors = errors;
+    }
+}
+
 export default class FieldsValidation {
     #user = null;
 
@@ -168,5 +175,38 @@ export default class FieldsValidation {
         }
 
         return validated;
+    }
+
+    check_string(string) {
+        if (string == null || typeof string !== 'string' || string === '') {
+            errors.push('Incorrect string');
+            throw new ValidationError(errors);
+        }
+
+        const errors = [];
+        const value = string
+            .replace(/[<>{}]/g, '')
+            .replace(/[^\w\s@.\-+а-яё]/gi, '')
+            .replace(/[%_\\]/g, '\\$&')
+            .trim();
+
+        if (!value) {
+            errors.push('Forbidden symbols');
+            throw new ValidationError(errors);
+        }
+
+        if (value.length < 2) {
+            errors.push('Min 2 symbols');
+        }
+
+        if (value.length > 50) {
+            errors.push('Max 50 symbols');
+        }
+
+        if (errors.length) {
+            throw new ValidationError(errors);
+        }
+
+        return value;
     }
 }

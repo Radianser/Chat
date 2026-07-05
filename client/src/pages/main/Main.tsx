@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useUserStore } from '@src/stores/user/userStore';
+import { useChatStore } from '@src/stores/chat/chatStore';
 import Authorization from '@pages/auth/Authorization';
 import Registration from '@pages/auth/Registration';
 import Chat from '@pages/chat/Chat';
@@ -13,7 +14,8 @@ import './style.css';
 // переименовать в welcome
 export default function Main() {
     const { getAuthUser, resetUser, logoutUser } = useUserStore.getState(); // useUserStore.getState(); это ломает реактивность, так можно импортировать только функции
-    const state = useUserStore((state) => state.state); // для сохранения реактивности при изменении state
+    const userState = useUserStore((store) => store.state); // для сохранения реактивности при изменении state
+    const chatState = useChatStore((store) => store.state);
     const [auth, setAuth] = useState('auth');
     const [isLoading, setIsLoading] = useState(true);
 
@@ -22,7 +24,7 @@ export default function Main() {
             setIsLoading(false);
         });
         
-        (window as any).user = state;
+        (window as any).user = userState;
         const unsubscribe = useUserStore.subscribe((newState) => {
             (window as any).user = newState.state;
         });
@@ -55,7 +57,7 @@ export default function Main() {
         );
     }
 
-    if (!state.id) {
+    if (!userState.id) {
         return (
             <div className='chat-auth'>
                 <div className='auth-plate'>
@@ -75,7 +77,7 @@ export default function Main() {
         <div className='chat-app'>
             <div className='chat-header'>
                 <div>
-                    <p>{state.name}</p>
+                    <p>{userState.name}</p>
                 </div>
                 <div>
                     <a onClick={(e) => handleLogout(e)}>Log out</a>
@@ -83,7 +85,7 @@ export default function Main() {
             </div>
             <div className='main-chat-page'>
                 <ChatList/>
-                <Chat/>
+                <Chat user={chatState.currentChat} />
             </div>
         </div>
     )

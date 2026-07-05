@@ -1,29 +1,29 @@
 // import { verifyCsrfToken } from '#middlewares/CsrfMiddleware.js'; это старый middleware, можно удалить
 
 const routes = [
-    {
-        path: '/main/',
-        method: 'post',
-        controller: 'MainController',
-        action: 'indexPost',
-        // проблема в том, что CsrfMiddleware возвращает много функций, а не одну
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
-    },
-    {
-        path: '/target/',
-        method: 'post',
-        controller: 'MainController',
-        action: 'formTarget',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
-    },
-    {
-        // path: '/api/test/',
-        path: '/test/',
-        method: 'put',
-        controller: 'MainController',
-        action: 'actionApi',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
-    },
+    // {
+    //     path: '/main/',
+    //     method: 'post',
+    //     controller: 'MainController',
+    //     action: 'indexPost',
+    //     // проблема в том, что CsrfMiddleware возвращает много функций, а не одну
+    //     middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    // },
+    // {
+    //     path: '/target/',
+    //     method: 'post',
+    //     controller: 'MainController',
+    //     action: 'formTarget',
+    //     middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    // },
+    // {
+    //     // path: '/api/test/',
+    //     path: '/test/',
+    //     method: 'put',
+    //     controller: 'MainController',
+    //     action: 'actionApi',
+    //     middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    // },
     {
         path: '/get-auth-user/',
         method: 'POST',
@@ -71,6 +71,13 @@ const routes = [
         method: 'POST',
         controller: 'AuthController',
         action: 'logout_user',
+        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    },
+    {
+        path: '/find-chats/',
+        method: 'POST',
+        controller: 'ChatController',
+        action: 'find_chats',
         middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
     }
 ];

@@ -34,6 +34,7 @@
       "@components/*": ["./src/components/*"],
       "@stores/*": ["./src/stores/*"],
       "@api/*": ["./src/api/*"],
+      "@utils/*": ["./src/utils/*"],
     }
   },
   "include": ["src"]

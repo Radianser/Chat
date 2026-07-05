@@ -102,6 +102,19 @@ export default class User {
         }
     }
 
+    async findByNameOrEmail(string) {
+        try {
+            const pattern = `%${string}%`;
+            let query = `SELECT id, name, email, created_at, verified_at FROM users WHERE email LIKE ? OR name LIKE ?`;
+            const [rows] = await db.mysql.query(query, [pattern, pattern]);
+
+            return rows;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
     async verifyUser(id) {
         try {
             let query = `UPDATE users SET verified_at = NOW() WHERE id = ?`;
