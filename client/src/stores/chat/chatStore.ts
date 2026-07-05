@@ -87,7 +87,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 				}));
 			}
 
-			// console.log('store.state: ', get().state);
+			console.log('store.state: ', get().state);
 		} catch (error) {
 			console.error('Ошибка запроса:', error);
 		}
