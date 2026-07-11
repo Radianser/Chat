@@ -97,7 +97,7 @@
 }
 
 .chat-user-info {
-    height: 70px;
+    height: 60px;
     display: flex;
     background-color: var(--primary);
     box-sizing: border-box;
@@ -129,7 +129,7 @@
 
 .chat-inputs-wrapper {
     background-color: var(--primary);
-    height: 50px;
+    height: 60px;
     padding: 10px;
     box-sizing: border-box;
 }
