@@ -62,6 +62,11 @@ export default function Main() {
     if (!userState.id) {
         return (
             <div className='chat-auth'>
+                <article>
+                    <title>Authentication</title>
+                    <meta name="description" content="Authentication page" />
+                </article>
+
                 <div className='auth-plate'>
                     <div className='auth-header-links'>
                         <a onClick={(e) => handleClick(e, 'auth')}>Authorization</a>
@@ -76,6 +81,11 @@ export default function Main() {
 
     return (
         <div className='chat-app'>
+            <article>
+                <title>Chat</title>
+                <meta name="description" content="This is a web messenger" />
+            </article>
+
             <div className='chat-header'>
                 <div>
                     <p>{userState.name}</p>
