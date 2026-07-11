@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import useTheme from '@src/hooks/useTheme.ts';
 import { useUserStore } from '@src/stores/user/userStore';
 import { useChatStore } from '@src/stores/chat/chatStore';
 import Authorization from '@pages/auth/Authorization';
@@ -13,6 +14,7 @@ import './style.css';
 
 // переименовать в welcome
 export default function Main() {
+    const { theme, toggleTheme } = useTheme();
     const { getAuthUser, resetUser, logoutUser } = useUserStore.getState(); // useUserStore.getState(); это ломает реактивность, так можно импортировать только функции
     const userState = useUserStore((store) => store.state); // для сохранения реактивности при изменении state
     const chatState = useChatStore((store) => store.state);
@@ -72,13 +74,13 @@ export default function Main() {
         );
     }
 
-    // это убрать, сделать редирект сюда, назвать main
     return (
         <div className='chat-app'>
             <div className='chat-header'>
                 <div>
                     <p>{userState.name}</p>
                 </div>
+                <div className={theme == 'dark' ? 'theme-switcher dark' : 'theme-switcher light'} onClick={() => toggleTheme()}></div>
                 <div>
                     <a onClick={(e) => handleLogout(e)}>Log out</a>
                 </div>

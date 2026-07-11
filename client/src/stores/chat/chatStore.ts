@@ -7,7 +7,8 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		userChats: [],
 		currentChat: {},
 		searchedChats: [],
-		searchErrors: []
+		searchErrors: [],
+		defaultUserImg: '/resources/1.png'
 	},
 
 	getUserChats() {

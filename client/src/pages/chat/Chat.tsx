@@ -1,4 +1,4 @@
-import UserChatInfo from '@src/pages/user/UserChatInfo.tsx';
+import ChatUserInfo from '@src/pages/chat/ChatUserInfo.tsx';
 import ChatInputs from '@src/pages/chat/ChatInputs.tsx';
 import ChatMessages from '@src/pages/chat/ChatMessages.tsx';
 
@@ -13,7 +13,7 @@ export default function Chat({ user }:any) {
                             </span>
                         </div>
                     :   <div className="chat-window">
-                           <UserChatInfo user={user} />
+                           <ChatUserInfo user={user} />
                            <ChatMessages/>
                            <ChatInputs/>
                         </div>

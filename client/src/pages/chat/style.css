@@ -1,6 +1,5 @@
 .chat-list-wrapper {
-	background-color: var(--bg);
-    border-right: 2px solid #20222f;
+    border-right: 1px solid var(--secondary);
 }
 
 .chat-list {
@@ -29,6 +28,10 @@
     width: 50px;
     height: 50px;
     object-fit: contain;
+}
+
+.chat-list-sent-mark, .chat-list-seen-mark {
+    fill: var(--text);
 }
 
 .chat-list-info > div {
@@ -75,7 +78,7 @@
     border: none;
     outline: none;
     text-indent: 35px;
-    background-color: #2d2f3b;
+    background-color: var(--secondary);
     color: var(--text);
 }
 
@@ -85,13 +88,11 @@
     left: 10px;
     bottom: 0;
     margin: auto;
-    width: 20px;
-
-    stroke: var(--text);
+    fill: var(--text);
     width: 20px;
     height: 20px;
     cursor: pointer;
-    transition: fill 0.3s ease, stroke 0.3s ease;
+    /* transition: fill 0.3s ease, stroke 0.3s ease; */
 }
 
 .custom-input-close {
@@ -100,10 +101,13 @@
     right: 5px;
     bottom: 0;
     margin: auto;
-
-    stroke: var(--text);
+    fill: var(--text);
     width: 20px;
     height: 20px;
     cursor: pointer;
-    transition: fill 0.3s ease, stroke 0.3s ease;
+    /* transition: fill 0.3s ease, stroke 0.3s ease; */
+}
+
+.chat-selected {
+    background-color: var(--secondary);
 }
