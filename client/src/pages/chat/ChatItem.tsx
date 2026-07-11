@@ -24,7 +24,7 @@ export default function ChatItem({ chat }:any) {
                     <div className="chat-list-user-name">
                         {chat.name}
                     </div>
-                    <div className="chat-list-user-last-message">
+                    <div className="chat-list-user-last-message" title={chat.message}>
                         {chat.message}
                     </div>
                 </div>
