@@ -43,10 +43,8 @@ export default function ChangePassword() {
     if (isExpired) {
         return (
             <div className='chat-auth'>
-                <article>
-                    <title>Password change</title>
-                    <meta name="description" content="Password change page" />
-                </article>
+                <title>Password change</title>
+                <meta name="description" content="Password change page" />
 
                 <div className='auth-plate'>
                     <div className='auth-header-links'>
@@ -62,10 +60,8 @@ export default function ChangePassword() {
 
     return (
         <div className='chat-auth'>
-            <article>
-                <title>Password change</title>
-                <meta name="description" content="Password change page" />
-            </article>
+            <title>Password change</title>
+            <meta name="description" content="Password change page" />
 
             <div className='auth-plate'>
                 <div className='auth-header-links'>

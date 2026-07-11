@@ -24,10 +24,8 @@ export default function ForgotPassword() {
     if (isSubmit) {
         return (
             <div className='chat-auth'>
-                <article>
-                    <title>Authentication</title>
-                    <meta name="description" content="Authentication page" />
-                </article>
+                <title>Authentication</title>
+                <meta name="description" content="Authentication page" />
                 
                 <div className='auth-plate'>
                     <div className='auth-header-links'>
@@ -43,10 +41,8 @@ export default function ForgotPassword() {
 
     return (
         <div className='chat-auth'>
-            <article>
-                <title>Authentication</title>
-                <meta name="description" content="Authentication page" />
-            </article>
+            <title>Authentication</title>
+            <meta name="description" content="Authentication page" />
 
             <div className='auth-plate'>
                 <div className='auth-header-links'>
