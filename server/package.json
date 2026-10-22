@@ -8,6 +8,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "knex": "^3.3.0",
     "mongodb": "^7.1.0",
     "mysql2": "^3.18.2",
     "nodemailer": "^8.0.7",
@@ -15,7 +16,14 @@
   },
   "scripts": {
     "start": "node --env-file=./config/.env index.js",
-    "dev": "node --watch --env-file=./config/.env index.js"
+    "dev": "node --watch --env-file=./config/.env index.js",
+    "migrate:mysql:make": "knex migrate:make --knexfile knexfile.cjs --migrations-directory migrations/mysql",
+    "migrate:mysql:latest": "knex migrate:latest --knexfile knexfile.cjs",
+    "migrate:mysql:rollback": "knex migrate:rollback --knexfile knexfile.cjs",
+    "migrate:mongo:create": "migrate-mongo create",
+    "migrate:mongo:up": "migrate-mongo up",
+    "migrate:mongo:down": "migrate-mongo down",
+    "migrate:mongo:status": "migrate-mongo status"
   },
   "imports": {
     "#models/*.js": "./models/*.js",
@@ -29,6 +37,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
+    "migrate-mongo": "^14.0.7",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.2"
   }
