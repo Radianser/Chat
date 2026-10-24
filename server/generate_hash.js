@@ -1,4 +1,4 @@
-// generate_hash.js
+// node generate_hash.js
 import bcrypt from 'bcrypt';
 
 const password = '111111aA';

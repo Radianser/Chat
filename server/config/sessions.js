@@ -29,7 +29,7 @@ export const sessionParams = {
     }),
     cookie: {
         maxAge: interval,
-        domain: 'localhost',
+        // domain: 'localhost',
         path: '/',
         secure: false,   // session_set_cookie_params -> secure: true
         httpOnly: true, // session_set_cookie_params -> httponly: true
