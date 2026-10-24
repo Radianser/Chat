@@ -35,7 +35,6 @@
 	gap: 10px;
 }
 
-.authorization-form input, .registration-form input,
 .authorization-form button, .registration-form button {
 	height: 40px;
     font-size: 16px;

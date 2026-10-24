@@ -9,6 +9,7 @@ export async function up(knex) {
         table.string('email').notNullable().unique();
         table.string('password').notNullable();
         table.timestamps(true, true);
+        table.timestamp('verified_at').nullable().defaultTo(null);
     });
 }
 

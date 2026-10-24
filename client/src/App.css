@@ -1,8 +1,9 @@
 /* Светлая тема (по умолчанию и принудительно) */
 :root, [data-theme="light"] {
 	--primary: #fff;
-	--secondary: #a5a5a51f;
+	--secondary: #e4e4e4;
 	--accent: #9F4DFC;
+	--border-color: #fff;
 
 	--text: rgb(105, 105, 105);
 	--text-accent: rgb(0, 0, 0);
@@ -30,8 +31,9 @@
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
 		--primary: #16171d;
-		--secondary: #20222f;
+		--secondary: #2c2e41;
 		--accent: #9F4DFC;
+		--border-color: #1f212a;
 
 		--text: rgb(155, 155, 155);
 		--text-accent: rgb(255, 255, 255);
@@ -41,8 +43,9 @@
 /* Принудительная тёмная тема */
 [data-theme="dark"] {
 	--primary: #16171d;
-	--secondary: #20222f;
+	--secondary: #2c2e41;
 	--accent: #9F4DFC;
+	--border-color: #1f212a;
 
 	--text: rgb(155, 155, 155);
 	--text-accent: rgb(255, 255, 255);
@@ -57,6 +60,10 @@
 
 body {
 	margin: 0;
+}
+
+body * {
+	color: var(--text);
 }
 
 h1,
@@ -93,14 +100,24 @@ p {
 
 input {
 	background-color: var(--secondary);
-	color: var(--primary);
+	border: 1px solid var(--border-color);
+	height: 40px;
+    font-size: 16px;
+    text-indent: 10px;
+    border-radius: 10px;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0px 1000px var(--secondary) inset !important;
+    background-color: var(--secondary) !important;
+    background-image: none !important;
+    -webkit-text-fill-color: var(--text) !important;
+    caret-color: var(--text) !important;
+    border: 1px solid var(--border-color) !important;
+    outline: none !important;
+    transition: background-color 9999s ease-in-out 0s;
 }
 
 button, a {
