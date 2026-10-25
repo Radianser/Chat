@@ -7,8 +7,11 @@ import { sessionParams, sessionDrop } from '#config/sessions.js';
 import { db } from "#config/db_conn.js";
 import cors from 'cors';
 import { setCsrfToken, generateCsrfToken } from '#middlewares/SetCsrfToken.js';
+import { createServer } from 'node:http';
+import { initSocket } from "./socket.js";
 
-let app = express();
+const app = express();
+const server = createServer(app);
 
 // Логирование ВСЕХ запросов (для отладки)
 app.use((req, res, next) => {
@@ -17,7 +20,9 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: [
+        process.env.WEB_CLIENT_URL
+    ],
     credentials: true
 })); // Чтобы фронтенд мог делать запросы к бэку
 
@@ -57,6 +62,7 @@ app.get('/csrf-token', (req, res) => {
 });
 
 await initRoutes(app);
+await initSocket(server);
 
 // app.use(function(req, res) {
 // 	res.status(404).send('not found');
@@ -91,6 +97,6 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // Перехватываем завершение процесса (например, при перезагрузке nodemon)
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
-app.listen(3000, function() {
+server.listen(3000, function() {
 	console.log('running');
 });

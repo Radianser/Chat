@@ -106,7 +106,7 @@ export default class AuthController {
             await regenerateSession(request, next);
             request.session.user = user;
 
-            return response.status(200).type('application/json').send({ 'code': 'OK', 'result': process.env.APP_DOMAIN });
+            return response.status(200).type('application/json').send({ 'code': 'OK', 'result': process.env.WEB_CLIENT_URL });
         } else {
             return response.status(200).type('application/json').send({ 'code': 'ERROR', 'result': 'Link has expired' });
         }
@@ -120,7 +120,7 @@ export default class AuthController {
     create_url_link(action, user_id) {
         const token = this.get_random_string(40);
         (new Token).create(token, user_id);
-        return process.env.APP_DOMAIN + `/${action}/${user_id}/${token}`;
+        return process.env.WEB_CLIENT_URL + `/${action}/${user_id}/${token}`;
     }
 
     get_random_string(length = 30) {

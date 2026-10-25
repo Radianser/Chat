@@ -6,7 +6,7 @@ export default function ChatItem({ chat }:any) {
     const currentChat = useChatStore(store => store.state.currentChat);
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
     const defaultUserImg = useChatStore(store => store.state.defaultUserImg);
-    const userImg = 'http://localhost:3000' + (chat.img ? chat.img : defaultUserImg);
+    const userImg = import.meta.env.VITE_WEB_SERVER_URL + (chat.img ? chat.img : defaultUserImg);
 
     function handleClick(chat:any) {
         setCurrentChat(chat);

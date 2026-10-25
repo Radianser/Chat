@@ -62,7 +62,7 @@ export default class MailController {
         return `<div style='background-color:#edf2f7;'>
             <div style='font-size:16px;box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);'>
                 <div style='text-align:center;padding:20px 0;'>
-                    <a href='${process.env.APP_DOMAIN}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
+                    <a href='${process.env.WEB_CLIENT_URL}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
                 </div>
                 <div style='width:55%;margin: 0 auto;background-color:#ffffff;padding:40px;border-radius:10px;'>
                     <div style='font-weight:bold;margin-bottom:20px;color:#2d3748;'>
@@ -100,7 +100,7 @@ export default class MailController {
         return `<div style='background-color:#edf2f7;'>
             <div style='font-size:16px;box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);'>
                 <div style='text-align:center;padding:20px 0;'>
-                    <a href='${process.env.APP_DOMAIN}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
+                    <a href='${process.env.WEB_CLIENT_URL}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
                 </div>
                 <div style='width:55%;margin: 0 auto;background-color:#ffffff;padding:40px;border-radius:10px;'>
                     <div style='font-weight:bold;margin-bottom:20px;color:#2d3748;'>
