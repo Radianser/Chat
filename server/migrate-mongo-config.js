@@ -1,7 +1,12 @@
 import dotenv from 'dotenv';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config({ path: path.resolve(process.cwd(), 'config', '.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ищем .env на уровень выше папки server (в корне проекта)
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const config = {
   mongodb: {

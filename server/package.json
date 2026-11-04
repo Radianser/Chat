@@ -12,18 +12,23 @@
     "mongodb": "^7.1.0",
     "mysql2": "^3.18.2",
     "nodemailer": "^8.0.7",
+    "pg": "^8.23.1",
     "socket.io": "^4.8.3"
   },
   "scripts": {
     "start": "node --env-file=../.env index.js",
     "dev": "node --watch --env-file=../.env index.js",
-    "migrate:mysql:make": "knex migrate:make --knexfile knexfile.cjs --migrations-directory migrations/mysql",
-    "migrate:mysql:latest": "knex migrate:latest --knexfile knexfile.cjs",
-    "migrate:mysql:rollback": "knex migrate:rollback --knexfile knexfile.cjs",
+    "migrate:mysql:make": "knex migrate:make --knexfile knexfile.cjs --migrations-directory migrations/mysql --env mysql",
+    "migrate:mysql:latest": "knex migrate:latest --knexfile knexfile.cjs --env mysql",
+    "migrate:mysql:rollback": "knex migrate:rollback --knexfile knexfile.cjs --env mysql",
+    "migrate:pg:make": "knex migrate:make --knexfile knexfile.cjs --migrations-directory migrations/postgres --env postgres",
+    "migrate:pg:latest": "knex migrate:latest --knexfile knexfile.cjs --env postgres",
+    "migrate:pg:rollback": "knex migrate:rollback --knexfile knexfile.cjs --env postgres",
     "migrate:mongo:create": "migrate-mongo create",
     "migrate:mongo:up": "migrate-mongo up",
     "migrate:mongo:down": "migrate-mongo down",
-    "migrate:mongo:status": "migrate-mongo status"
+    "migrate:mongo:status": "migrate-mongo status",
+    "migrate:all": "npm run migrate:mysql:latest && npm run migrate:pg:latest && npm run migrate:mongo:up"
   },
   "imports": {
     "#models/*.js": "./models/*.js",

@@ -1,11 +1,16 @@
 import dotenv from 'dotenv';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config({ path: path.resolve(process.cwd(), 'config', '.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ищем .env на уровень выше папки server (в корне проекта)
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 /** @type {import('knex').Knex.Config} */
 const config = {
-  development: {
+  mysql: {
     client: 'mysql2',
     connection: {
       host: process.env.MYSQL_DB_HOST,
@@ -19,6 +24,20 @@ const config = {
       loadExtensions: ['.js'],
       // кастомный шаблон для генерации ESM-миграций
       stub: './migrations/mysql/migration.stub',
+    },
+  },
+  postgres: {
+    client: 'pg',
+    connection: {
+      host: process.env.PG_DB_HOST,
+      user: process.env.PG_DB_USER,
+      password: process.env.PG_DB_PASS,
+      database: process.env.PG_DB_NAME,
+    },
+    migrations: {
+      directory: './migrations/postgres',
+      loadExtensions: ['.js'],
+      stub: './migrations/postgres/migration.stub',
     },
   },
 };
