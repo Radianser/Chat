@@ -8,10 +8,7 @@ import RegFormValidation from '#validation/RegForm.js'
 import PassFormValidation from '#validation/PassForm.js'
 import FieldsValidation from '#validation/FieldsValidation.js'
 import MailController from '#controllers/MailController.js'
-import dotenv from 'dotenv';
 import { regenerateSession } from '#config/sessions.js';
-
-dotenv.config();
 
 export default class AuthController {
     constructor() {}

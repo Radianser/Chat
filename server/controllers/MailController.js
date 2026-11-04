@@ -2,9 +2,6 @@ import path from 'path';
 import fs from 'fs';
 import User from '#models/User.js';
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 // Создаём объект "транспортера" — он отвечает за соединение с почтовым сервером
 const transporter = nodemailer.createTransport({

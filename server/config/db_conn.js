@@ -18,18 +18,37 @@ const pgPool = new pg.Pool({
     port: process.env.PG_DB_PORT,
 });
 
-const mongoClient = new MongoClient(process.env.MONGO_DB_HOST, {
-    auth: {
-        username: process.env.MONGO_DB_USER,
-        password: process.env.MONGO_DB_PASS
+const mongoClient = new MongoClient(process.env.MONGO_DB_HOST);
+
+export const initDatabases = async () => {
+    console.log('⏳ Инициализация баз данных...');
+    
+    try {
+        // 1. Проверяем MySQL
+        await mysqlPool.query('SELECT 1');
+        console.log('✅ MySQL подключен');
+
+        // 2. Проверяем PostgreSQL
+        await pgPool.query('SELECT 1');
+        console.log('✅ PostgreSQL подключен');
+
+        // 3. Подключаем MongoDB
+        await mongoClient.connect();
+        console.log('✅ MongoDB подключена');
+        
+        console.log('🚀 Все базы данных готовы к работе!');
+    } catch (error) {
+        console.error('❌ Ошибка инициализации баз данных:', error.message);
+        process.exit(1); // Останавливаем сервер, если нет связи с БД
     }
-});
-await mongoClient.connect();
+};
 
 export const db = {
     mysql: mysqlPool,
     pg: pgPool,
-    mongo: mongoClient.db(process.env.MONGO_DB_NAME),
+    get mongo() {
+        return mongoClient.db(process.env.MONGO_DB_NAME);
+    },
     async closeAll() {
         await mysqlPool.end();
         await pgPool.end(); 

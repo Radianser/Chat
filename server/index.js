@@ -1,10 +1,12 @@
-import express from 'express';
+import './env.js';
 import path from 'path';
+
+import express from 'express';
 import expressSession from 'express-session';
 import cookieParser from 'cookie-parser';
 import { initRoutes } from '#config/routes.js';
 import { sessionParams, sessionDrop } from '#config/sessions.js';
-import { db } from "#config/db_conn.js";
+import { initDatabases, db } from "#config/db_conn.js";
 import cors from 'cors';
 import { setCsrfToken, generateCsrfToken } from '#middlewares/SetCsrfToken.js';
 import { createServer } from 'node:http';
@@ -37,19 +39,7 @@ app.use(sessionDrop);
 app.use(setCsrfToken); // Устанавливаем CSRF токен
 
 // Эндпоинт для получения CSRF токена
-// app.get('/csrf-token', (req, res) => {
-//     res.json({ 
-//         csrfToken: req.session.csrf_token 
-//     });
-// });
-
-// Эндпоинт для получения CSRF токена
 app.get('/csrf-token', (req, res) => {
-    console.log('Session ID:', req.sessionID);
-    console.log('Session created:', req.session.created);
-    console.log('CSRF token in session:', req.session.csrf_token);
-    // console.log('CSRF token in req:', req.headers);
-    
     // Если токен пустой, генерируем его принудительно
     if (!req.session.csrf_token) {
         req.session.csrf_token = generateCsrfToken();
@@ -59,24 +49,6 @@ app.get('/csrf-token', (req, res) => {
     return res.json({ 
         csrfToken: req.session.csrf_token 
     });
-});
-
-await initRoutes(app);
-await initSocket(server);
-
-// app.use(function(req, res) {
-// 	res.status(404).send('not found');
-// });
-
-// Обработчик 404 для API запросов
-app.use((req, res) => {
-    if (!res.headersSent) {
-        return res.status(404).json({ 
-            error: 'API endpoint not found',
-            method: req.method,
-            path: req.path
-        });
-    }
 });
 
 const gracefulShutdown = async (signal) => {
@@ -97,6 +69,26 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // Перехватываем завершение процесса (например, при перезагрузке nodemon)
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
-server.listen(3000, function() {
-	console.log('running');
-});
+const startServer = async () => {
+    await initDatabases();
+    await initRoutes(app);
+    await initSocket(server);
+
+    // Обработчик 404 для API запросов
+    app.use((req, res) => {
+        if (!res.headersSent) {
+            return res.status(404).json({ 
+                error: 'API endpoint not found',
+                method: req.method,
+                path: req.path
+            });
+        }
+    });
+
+    // Запускаем сервер
+    server.listen(3000, () => {
+        console.log(`Server is running on port ${3000}`);
+    });
+};
+
+startServer();

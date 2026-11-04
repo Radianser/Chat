@@ -26,6 +26,12 @@ services:
     volumes:
       - mongodata:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017 --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # 3. MySQL для настроек
   mysql:

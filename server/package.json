@@ -16,8 +16,8 @@
     "socket.io": "^4.8.3"
   },
   "scripts": {
-    "start": "node --env-file=../.env index.js",
-    "dev": "node --watch --env-file=../.env index.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js",
     "migrate:mysql:make": "knex migrate:make --knexfile knexfile.cjs --migrations-directory migrations/mysql --env mysql",
     "migrate:mysql:latest": "knex migrate:latest --knexfile knexfile.cjs --env mysql",
     "migrate:mysql:rollback": "knex migrate:rollback --knexfile knexfile.cjs --env mysql",

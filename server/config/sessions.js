@@ -1,3 +1,4 @@
+import '../env.js';
 import { setCsrfToken } from '#middlewares/SetCsrfToken.js';
 import MongoStore from 'connect-mongo';
 
@@ -14,7 +15,7 @@ export const sessionParams = {
         // Если используешь mongoose
         // client: db.connection.getClient(), // mongoose 6+
         // Или строка подключения напрямую:
-        mongoUrl: process.env.MONGO_DB_HOST + process.env.MONGO_DB_NAME,
+        mongoUrl: process.env.MONGO_DB_HOST,
         
         collectionName: 'sessions', // Название коллекции для сессий
         ttl: interval / 1000, // TTL в секундах (автоудаление просроченных)
