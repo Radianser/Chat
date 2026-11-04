@@ -5,15 +5,20 @@
 <div>Используется свой фреймворк на базе Node.js/Express, React/TypeScript, MySQL, MongoDB</div>
 
 1. git clone https://github.com/radianser/Chat.git
+
 2. устанавливаем зависимости:
 - cd Chat && npm install
-- cd client && npm install
-- cd ../server && npm install
+- npm --prefix client run install
+- npm --prefix server run install
 
-3. в папке server накатываем миграции:
-- npm run migrate:mysql:latest  # Применить все миграции MySQL
-- npm run migrate:mongo:up      # Применить все миграции MongoDB
+3. настраиваем в .env доступы к почте
 
-4. настраиваем .env с доступами к БД и почте
-5. в папке Chat стартуем сервера:
+4. запускаем докер:
+- docker compose down -v # Флаг -v удаляет данные в базах
+- docker compose up -d # Флаг -d включает фоновый режим и возвращает управление терминалом
+
+5. накатываем миграции:
+- npm --prefix server run migrate:all
+
+6. стартуем сервера:
 - npm run start
