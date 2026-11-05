@@ -21,20 +21,6 @@ const routes = [
         middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
     },
     {
-        path: '/restore-password/',
-        method: 'POST',
-        controller: 'AuthController',
-        action: 'restore_password',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
-    },
-    {
-        path: '/change-password/',
-        method: 'POST',
-        controller: 'AuthController',
-        action: 'change_password',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
-    },
-    {
         path: '/verify-token/',
         method: 'POST',
         controller: 'AuthController',
@@ -46,6 +32,20 @@ const routes = [
         method: 'POST',
         controller: 'AuthController',
         action: 'logout_user',
+        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    },
+    {
+        path: '/restore-password/',
+        method: 'POST',
+        controller: 'AuthController',
+        action: 'restore_password',
+        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+    },
+    {
+        path: '/change-password/',
+        method: 'POST',
+        controller: 'AuthController',
+        action: 'change_password',
         middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
     },
     {

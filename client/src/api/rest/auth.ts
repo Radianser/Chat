@@ -6,19 +6,6 @@ interface RequestParams {
     method?: AxiosRequestConfig['method'];
 }
 
-export const registerUser = ({ data, method }: RequestParams) => makeRequest({
-    // возможно не работает, проверить
-    url: `/user/register`,
-    method: method,
-    data: data
-});
-
-export const testFunc = ({ data, method }: RequestParams) => makeRequest({
-    url: `/api/main/`,
-    method: method,
-    data: data
-});
-
 export const getAuthUser = () => makeRequest({
     url: `/api/get-auth-user/`
 });
