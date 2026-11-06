@@ -1,10 +1,8 @@
-// import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 
 let io = null;
 
 export const initSocket = async (server) => {
-    // Создаём экземпляр Socket.IO, привязывая его к HTTP-серверу
     io = new Server(server, {
         cors: {
             origin: [
@@ -15,34 +13,29 @@ export const initSocket = async (server) => {
         }
     });
 
-    io.on("connection_error", (err) => {
-        console.log('🔴 Socket.IO connection error: ', err);
-    });
-
-    // Слушаем событие 'connection' — оно срабатывает при подключении нового клиента
+    // 1. Слушаем ПОДКЛЮЧЕНИЕ клиента
     io.on('connection', (socket) => {
-        console.log('Пользователь подключился:', socket.id);
+        console.log('🟢 Пользователь подключился:', socket.id);
 
-        // socket.on(`new_msg_${socket.id}`, (msg) => {
-        //     // отправляет событие всем, кроме отправителя
-        //     socket.broadcast.emit(`new_msg_${socket.id}`);
-        // });
+        // 2. Внутри подключения слушаем ЕГО события
+        socket.on('get_last_messages', (data) => {
+            console.log('📥 get_last_messages на сервере:', data);
+            
+            // data — это то, что ты передал с клиента: [user.id, chat.id]
+            const [userId, chatId] = data; 
 
-        // socket.on(`user_connected`, (msg) => {
-        //     // Отправляет событие только одному конкретному клиенту
-        //     socket.emit(`user_connected`, msg)
-        // });
+            // Тут будет логика поиска сообщений в Mongo
+            let messages = [
+                { id: 1, text: 'Привет!', senderId: userId, chatId: chatId },
+                { id: 2, text: 'Как дела?', senderId: 2, chatId: chatId }
+            ];
 
-        // socket.on(`user_disconnected`, (msg) => {
-        //     // отправляет событие всем, кроме отправителя
-        //     socket.broadcast.emit(`user_disconnected`);
-        // });
-
-        // 👇 рассылаем ВСЕМ, КРОМЕ этого сокета
-        socket.broadcast.emit('user_connect', { id: socket.id });
+            // 3. Отправляем ответ ОБРАТНО этому же клиенту
+            socket.emit('get_last_messages', { messages });
+        });
 
         socket.on('disconnect', () => {
-            socket.broadcast.emit('user_disconnect', { id: socket.id });
+            console.log('🔴 Пользователь отключился:', socket.id);
         });
     });
 };

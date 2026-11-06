@@ -14,24 +14,24 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 	getUserChats() {
 		// request
 
-		console.log("Lets imagine we've done a request");
+		// console.log("Lets imagine we've done a request");
 
-		let chats = [
-			{id: 1, name: 'John', img: '/resources/5.png', message: "hello! wefwefwe wefwe fwef wefw ef wef wef wef", messageTime: 'Jul 3', messageType: 'income', messageStatus: null},
-			{id: 2, name: 'Kate', img: null, message: 'bye', messageTime: "Jul 4", messageType: 'income', messageStatus: null},
-			{id: 3, name: 'Julia', img: '/resources/6.png', message: "what's up?", messageTime: 'Jul 29', messageType: 'outcome', messageStatus: 'delivered'}
-		];
+		// let chats = [
+		// 	{id: 1, name: 'John', img: '/resources/5.png', message: "hello! wefwefwe wefwe fwef wefw ef wef wef wef", messageTime: 'Jul 3', messageType: 'income', messageStatus: null},
+		// 	{id: 2, name: 'Kate', img: null, message: 'bye', messageTime: "Jul 4", messageType: 'income', messageStatus: null},
+		// 	{id: 3, name: 'Julia', img: '/resources/6.png', message: "what's up?", messageTime: 'Jul 29', messageType: 'outcome', messageStatus: 'delivered'}
+		// ];
 
 
-		set(store => ({
-			state: {
-				...store.state,
-				userChats: [
-					...store.state.userChats,
-					...chats
-				]
-			}
-		}));
+		// set(store => ({
+		// 	state: {
+		// 		...store.state,
+		// 		userChats: [
+		// 			...store.state.userChats,
+		// 			...chats
+		// 		]
+		// 	}
+		// }));
 	},
 
 	clearAllChats() {

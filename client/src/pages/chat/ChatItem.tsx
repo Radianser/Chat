@@ -9,6 +9,8 @@ export default function ChatItem({ chat }:any) {
     const userImg = import.meta.env.VITE_WEB_SERVER_URL + (chat.img ? chat.img : defaultUserImg);
 
     function handleClick(chat:any) {
+        if (currentChat.id == chat.id) return;
+        console.log('chat: ', chat);
         setCurrentChat(chat);
     }
 

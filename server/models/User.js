@@ -67,7 +67,7 @@ export default class User {
             const pattern = `%${string}%`;
             const query = `
                 SELECT id, name, email, created_at, verified_at FROM users
-                WHERE email LIKE $1 OR name LIKE $2
+                WHERE email ILIKE $1 OR name ILIKE $2
             `;
             const result = await db.pg.query(query, [pattern, pattern]);
             return result.rows || null;

@@ -1,6 +1,6 @@
 
 
-export default function ChatMessages() {
+export default function ChatMessages({ chat }:any) {
     return (
         <div className="chat-messages">
             

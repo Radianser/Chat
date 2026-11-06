@@ -1,50 +1,44 @@
 import ChatUserInfo from '@src/pages/chat/ChatUserInfo.tsx';
 import ChatInputs from '@src/pages/chat/ChatInputs.tsx';
 import ChatMessages from '@src/pages/chat/ChatMessages.tsx';
+import { useChatStore } from '@src/stores/chat/chatStore';
+import { useUserStore } from '@src/stores/user/userStore';
 import { useSocket } from '@socket/SocketContext';
 import { useEffect } from 'react';
 
-export default function Chat({ user }:any) {
+export default function Chat() {
+    const user = useUserStore((state) => state.state);
+    const chat = useChatStore((store) => store.state.currentChat);
     const socket = useSocket();
 
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !chat.id) return;
 
-        socket.on('connect', () => console.log('🟢 connect', socket.id));
-        socket.on('connect_error', (e) => {
-            console.log('🔴 Socket.IO connection error: ', e);
-        });
+        const getLastMessages = ({ messages }: { messages: Array<any> }) => {
+            console.log('get_last_messages на клиенте:', messages);
+        }
 
-        const onUserConnect = ({ id }: { id: string }) => {
-            console.log('Пользователь подключился:', id);
-        };
-
-        const onUserDisconnect = ({ id }: { id: string }) => {
-            console.log('Пользователь отключился:', id);
-        };
-
-        socket.on('user_connect', onUserConnect);
-        socket.on('user_disconnect', onUserDisconnect);
+        socket.emit('get_last_messages', [user.id, chat.id]);
+        socket.on('get_last_messages', getLastMessages);
 
         return () => {
-            socket.off('user_connect', onUserConnect);
-            socket.off('user_disconnect', onUserDisconnect);
+            socket.off('get_last_messages', getLastMessages);
         };
-    }, [socket]);
+    }, [socket, chat.id]);
 
     return (
         <div className="chat-window-wrapper">
             {
-                !Object.keys(user).length
+                !Object.keys(chat).length
                     ?   <div className="chat-window-empty">
                             <span className="chat-intro">
                                 Select a chat to start messaging
                             </span>
                         </div>
                     :   <div className="chat-window">
-                           <ChatUserInfo user={user} />
-                           <ChatMessages/>
-                           <ChatInputs/>
+                           <ChatUserInfo chat={chat} />
+                           <ChatMessages chat={chat} />
+                           <ChatInputs chat={chat} />
                         </div>
             }
         </div>

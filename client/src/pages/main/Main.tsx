@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import useTheme from '@src/hooks/useTheme.ts';
 import { useUserStore } from '@src/stores/user/userStore';
-import { useChatStore } from '@src/stores/chat/chatStore';
 import Authorization from '@pages/auth/Authorization';
 import Registration from '@pages/auth/Registration';
 import Chat from '@pages/chat/Chat';
@@ -17,7 +16,6 @@ export default function Main() {
     const { theme, toggleTheme } = useTheme();
     const { getAuthUser, resetUser, logoutUser } = useUserStore.getState(); // useUserStore.getState(); это ломает реактивность, так можно импортировать только функции
     const userState = useUserStore((store) => store.state); // для сохранения реактивности при изменении state
-    const chatState = useChatStore((store) => store.state);
     const [auth, setAuth] = useState('auth');
     const [isLoading, setIsLoading] = useState(true);
 
@@ -93,7 +91,7 @@ export default function Main() {
             </div>
             <div className='main-chat-page'>
                 <ChatList/>
-                <Chat user={chatState.currentChat} />
+                <Chat/>
             </div>
         </div>
     )

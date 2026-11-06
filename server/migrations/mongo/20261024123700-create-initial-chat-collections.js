@@ -12,21 +12,21 @@ export const up = async (db, client) => {
                 bsonType: 'object',
                 required: ['type', 'participants', 'createdAt', 'updatedAt'],
                 properties: {
-                type: {
-                    enum: ['direct', 'group'],
-                    description: 'Тип чата: личный или групповой',
-                },
-                participants: {
-                    bsonType: 'array',
-                    description: 'Массив ID пользователей из MySQL',
-                    items: { bsonType: 'int' }, // Предполагаем, что ID в MySQL числовые
-                },
-                lastMessage: {
-                    bsonType: 'object',
-                    description: 'Денормализация для быстрого отображения списка чатов',
-                },
-                createdAt: { bsonType: 'date' },
-                updatedAt: { bsonType: 'date' },
+                    type: {
+                        enum: ['direct', 'group'],
+                        description: 'Тип чата: личный или групповой',
+                    },
+                    participants: {
+                        bsonType: 'array',
+                        description: 'Массив ID пользователей из MySQL',
+                        items: { bsonType: 'int' }, // Предполагаем, что ID в MySQL числовые
+                    },
+                    lastMessage: {
+                        bsonType: 'object',
+                        description: 'Денормализация для быстрого отображения списка чатов',
+                    },
+                    createdAt: { bsonType: 'date' },
+                    updatedAt: { bsonType: 'date' },
                 },
             },
         },
@@ -44,11 +44,11 @@ export const up = async (db, client) => {
                 bsonType: 'object',
                 required: ['conversationId', 'senderId', 'type', 'createdAt'],
                 properties: {
-                conversationId: { bsonType: 'objectId' },
-                senderId: { bsonType: 'int' },
-                type: { enum: ['text', 'image', 'file'] },
-                text: { bsonType: 'string' },
-                createdAt: { bsonType: 'date' },
+                    conversationId: { bsonType: 'objectId' },
+                    senderId: { bsonType: 'int' },
+                    type: { enum: ['text', 'image', 'file'] },
+                    text: { bsonType: 'string' },
+                    createdAt: { bsonType: 'date' },
                 },
             },
         },
