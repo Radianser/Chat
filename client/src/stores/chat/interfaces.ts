@@ -3,7 +3,7 @@ export interface iChatState {
 	currentChat: Record<string, any>,
 	searchedChats: Array<any>,
 	searchErrors: Array<any>,
-	defaultUserImg: string
+	defaultChatImg: string
 }
 
 export interface iChatStore {

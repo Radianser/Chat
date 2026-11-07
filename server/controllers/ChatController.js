@@ -7,6 +7,8 @@ import FieldsValidation, { ValidationError } from '#validation/FieldsValidation.
 export default class ChatController {
     constructor() {}
 
+    // этот метод нормально сейчас не работает
+    // т.к. я перевел чаты на монгу
     async find_chats(request, response) {
         let chats = [];
         let errors = [];

@@ -22,8 +22,7 @@ export const up = async (db, client) => {
                         items: { bsonType: 'int' }, // Предполагаем, что ID в MySQL числовые
                     },
                     lastMessage: {
-                        bsonType: 'object',
-                        description: 'Денормализация для быстрого отображения списка чатов',
+                        bsonType: 'string'
                     },
                     createdAt: { bsonType: 'date' },
                     updatedAt: { bsonType: 'date' },

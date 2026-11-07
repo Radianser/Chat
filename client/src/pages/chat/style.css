@@ -60,6 +60,10 @@
     max-width: 220px;
 }
 
+.chat-list-user-last-message, .chat-list-message-time {
+    font-size: 14px;
+}
+
 .chat-search-wrapper {
     height: 60px;
     padding: 10px;
