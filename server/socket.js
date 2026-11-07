@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import ChatController from '#controllers/ChatController.js';
 
 let io = null;
 
@@ -13,25 +14,31 @@ export const initSocket = async (server) => {
         }
     });
 
-    // 1. Слушаем ПОДКЛЮЧЕНИЕ клиента
+    // слушаем подключение клиента
     io.on('connection', (socket) => {
         console.log('🟢 Пользователь подключился:', socket.id);
 
-        // 2. Внутри подключения слушаем ЕГО события
+        // слушаем события клиента
         socket.on('get_last_messages', (data) => {
             console.log('📥 get_last_messages на сервере:', data);
             
-            // data — это то, что ты передал с клиента: [user.id, chat.id]
             const [userId, chatId] = data; 
 
-            // Тут будет логика поиска сообщений в Mongo
             let messages = [
                 { id: 1, text: 'Привет!', senderId: userId, chatId: chatId },
                 { id: 2, text: 'Как дела?', senderId: 2, chatId: chatId }
             ];
 
-            // 3. Отправляем ответ ОБРАТНО этому же клиенту
             socket.emit('get_last_messages', { messages });
+        });
+
+        socket.on('get_user_chats', async (data) => {
+            console.log('📥 get_user_chats на сервере:', data);
+            
+            const [userId] = data;
+            let conversations = await (new ChatController).getUserChats(userId);
+
+            socket.emit('get_user_chats', conversations);
         });
 
         socket.on('disconnect', () => {

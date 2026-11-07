@@ -1,9 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 import User from '#models/User.js';
+import Chat from '#models/Chat.js';
 import FieldsValidation, { ValidationError } from '#validation/FieldsValidation.js'
 
-export default class MainController {
+export default class ChatController {
     constructor() {}
 
     async find_chats(request, response) {
@@ -29,5 +30,26 @@ export default class MainController {
             'chats': chats,
             'errors': errors
         });
+    }
+
+    async getUserChats(userId) {
+        let chats = [];
+        let errors = [];
+
+        try {
+            chats = await (new Chat).getUserChats(userId);
+        } catch (error) {
+            errors = [error.message];
+        }
+
+        console.log('RESULT: ', {
+            'chats': chats,
+            'errors': errors
+        });
+
+        return {
+            chats,
+            errors
+        }
     }
 }

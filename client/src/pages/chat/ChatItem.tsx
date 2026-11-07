@@ -9,15 +9,15 @@ export default function ChatItem({ chat }:any) {
     const userImg = import.meta.env.VITE_WEB_SERVER_URL + (chat.img ? chat.img : defaultUserImg);
 
     function handleClick(chat:any) {
-        if (currentChat.id == chat.id) return;
+        if (currentChat.id == chat._id) return;
         console.log('chat: ', chat);
         setCurrentChat(chat);
     }
 
     return (
         <div 
-            className={currentChat.id == chat.id ? 'chat-selected chat-list-info' : 'chat-list-info'} 
-            key={chat.id} 
+            className={currentChat.id == chat._id ? 'chat-selected chat-list-info' : 'chat-list-info'} 
+            key={chat._id} 
             onClick={() => handleClick(chat)}
         >
             <img src={userImg} alt="" />

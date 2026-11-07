@@ -9,7 +9,7 @@ export interface iChatState {
 export interface iChatStore {
 	state: iChatState,
 	setCurrentChat: (chat:Record<string, any>) => void
-	getUserChats: () => void,
+	setUserChats: (chats: Array<any>) => void,
 	clearAllChats: () => void,
 	clearSearchedChats: () => void,
 	findChats: (name: string) => void
