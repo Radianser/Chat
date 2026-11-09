@@ -32,13 +32,22 @@ export const initSocket = async (server) => {
             socket.emit('get_last_messages', { messages });
         });
 
-        socket.on('get_user_chats', async (data) => {
-            console.log('📥 get_user_chats на сервере:', data);
+        socket.on('get_chat_list', async (data) => {
+            console.log('📥 get_chat_list на сервере:', data);
             
             const [userId] = data;
-            let conversations = await (new ChatController).getUserChats(userId);
+            let conversations = await (new ChatController).getChatList(userId);
 
-            socket.emit('get_user_chats', conversations);
+            socket.emit('get_chat_list', conversations);
+        });
+
+        socket.on('get_messages', async (data) => {
+            console.log('📥 get_messages на сервере:', data);
+            
+            const [chatId] = data;
+            let messages = await (new ChatController).getChatMessages(chatId);
+
+            socket.emit('get_messages', messages);
         });
 
         socket.on('disconnect', () => {

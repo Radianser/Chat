@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function ChatInputs({ chat }:any) {
+export default function ChatInputs() {
     const [message, setMessage] = useState('');
 
     function handleInput(e: any) {

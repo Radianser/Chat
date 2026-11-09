@@ -10,7 +10,7 @@ export const up = async (db, client) => {
         validator: {
             $jsonSchema: {
                 bsonType: 'object',
-                required: ['type', 'participants', 'createdAt', 'updatedAt'],
+                required: ['type', 'participants', 'createdAt', 'updatedAt', 'isPrivate'],
                 properties: {
                     type: {
                         enum: ['direct', 'group'],
@@ -26,6 +26,7 @@ export const up = async (db, client) => {
                     },
                     createdAt: { bsonType: 'date' },
                     updatedAt: { bsonType: 'date' },
+                    isPrivate: { bsonType: 'bool' },
                 },
             },
         },
@@ -47,7 +48,9 @@ export const up = async (db, client) => {
                     senderId: { bsonType: 'int' },
                     type: { enum: ['text', 'image', 'file'] },
                     text: { bsonType: 'string' },
+                    status: { enum: ['delivered', 'read'] },
                     createdAt: { bsonType: 'date' },
+                    updatedAt: { bsonType: 'date' },
                 },
             },
         },

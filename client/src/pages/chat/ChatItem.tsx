@@ -51,7 +51,7 @@ export default function ChatItem({ chat }:any) {
                     <div className="chat-list-message-status">
                         {
                             chat.lastMessageSender == user.id
-                                ? chat.lastMessageStatus == 'delivered'
+                                ? chat.lastMessageStatus == 'read'
                                     ? <SeenMarkIcon className="chat-list-sent-mark" />
                                     : <SentMarkIcon className="chat-list-seen-mark" />
                                 : ''

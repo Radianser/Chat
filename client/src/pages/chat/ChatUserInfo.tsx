@@ -1,8 +1,9 @@
 import { useChatStore } from '@src/stores/chat/chatStore';
 import { useUserStore } from '@src/stores/user/userStore';
 
-export default function ChatUserInfo({ chat }:any) {
+export default function ChatUserInfo() {
     const user = useUserStore((state) => state.state);
+    const chat = useChatStore((store) => store.state.currentChat);
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     
     let chatImg = import.meta.env.VITE_WEB_SERVER_URL;

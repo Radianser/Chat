@@ -4,56 +4,57 @@ const routes = [
         method: 'POST',
         controller: 'AuthController',
         action: 'get_auth_user',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
+        // middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
     },
     {
         path: '/authorize-user/',
         method: 'POST',
         controller: 'AuthController',
         action: 'authorize_user',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/registrate-user/',
         method: 'POST',
         controller: 'AuthController',
         action: 'registrate_user',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/verify-token/',
         method: 'POST',
         controller: 'AuthController',
         action: 'verify_token',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/logout-user/',
         method: 'POST',
         controller: 'AuthController',
         action: 'logout_user',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/restore-password/',
         method: 'POST',
         controller: 'AuthController',
         action: 'restore_password',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/change-password/',
         method: 'POST',
         controller: 'AuthController',
         action: 'change_password',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     },
     {
         path: '/find-chats/',
         method: 'POST',
         controller: 'ChatController',
         action: 'find_chats',
-        middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
+        middlewares: []
     }
 ];
 
@@ -119,7 +120,7 @@ const registerRoute = async (route) => {
 
 		// 2. Динамический импорт мидлваров
 		const middlewares = await Promise.all(
-			(route.middlewares || []).map(async (name) => {
+			(['VerifyCsrfToken', 'UserActivityTracker', ...route.middlewares] || []).map(async (name) => {
 				if (!middlewaresCache.has(name)) {
                     const MiddlewareModule = await import(`#middlewares/${name}.js`);
 					// Сохраняем именно функцию

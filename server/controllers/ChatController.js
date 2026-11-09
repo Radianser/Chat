@@ -3,54 +3,113 @@ import fs from 'fs';
 import User from '#models/User.js';
 import Chat from '#models/Chat.js';
 import FieldsValidation, { ValidationError } from '#validation/FieldsValidation.js'
+import { db } from "#config/db_conn.js";
 
 export default class ChatController {
     constructor() {}
 
-    // этот метод нормально сейчас не работает
-    // т.к. я перевел чаты на монгу
     async find_chats(request, response) {
-        let chats = [];
         let errors = [];
+        let resultChats = [];
+        const searchString = request.body.string;
 
         try {
-            let validated = (new FieldsValidation).check_string(request.body.string);
-            chats = await (new User).findByNameOrEmail(validated);
-        } catch (error) {
-            if (error instanceof ValidationError) {
-                errors = error.errors;
-            } else {
-                errors = [error.message];
+            // let validated = (new FieldsValidation).check_string(searchString);
+
+            // 1. Ищем пользователей в PostgreSQL
+            const postgreUsers = await (new User).findByNameOrEmail(searchString);
+
+            // 2. Обрабатываем пользователей (как делали раньше)
+            for (const user of postgreUsers) {
+                if (user.id === request.session.user.id) continue;
+                
+                const existingChat = await db.mongo.collection('conversations').findOne({
+                    type: 'direct',
+                    participants: { $all: [request.session.user.id, user.id] }
+                });
+
+                if (existingChat) {
+                    // resultChats.push({ ...existingChat, type: 'direct' });
+                    resultChats.push(existingChat);
+                } else {
+                    // "Фейковый" чат для пользователя
+                    resultChats.push({
+                        _id: null,
+                        type: 'direct',
+                        chatTitle: user.name,
+                        chatImg: user.img,
+                        chatUsers: {
+                            [request.session.user.id]: { name: request.session.user.name, img: request.session.user.img },
+                            [user.id]: { name: user.name, img: user.img }
+                        }
+                    });
+                }
             }
-        }
 
-        if (!errors.length && !chats.length) {
-            errors.push('No chats found');
-        }
+            // 3. Ищем публичные группы в MongoDB
+            // (предполагаем, что у групп есть поля chatTitle и isPrivate)
+            const mongoGroups = await db.mongo.collection('conversations').find({
+                type: 'group',
+                isPrivate: false, 
+                chatTitle: { $regex: searchString, $options: 'i' } // Регистронезависимый поиск по названию
+            }).toArray();
 
-        return response.status(200).type('application/json').send({
-            'chats': chats,
-            'errors': errors
-        });
+            // 4. Обрабатываем группы
+            for (const group of mongoGroups) {
+                // Проверяем, состоит ли текущий пользователь в этой группе
+                const isMember = group.participants.includes(request.session.user.id);
+                
+                resultChats.push({
+                    ...group,
+                    isMember, // Полезно знать клиенту, можно ли сразу писать в группу
+                });
+            }
+
+            if (!resultChats.length) {
+                errors.push('No chats found');
+            }
+
+            return response.json({ chats: resultChats, errors });
+        } catch (error) {
+            // if (error instanceof ValidationError) {
+            //     errors = error.errors;
+            // } else {
+            //     errors = [error.message];
+            // }
+
+            console.error(error);
+            return response.status(500).json({ chats: [], errors: [error.message] });
+        }
     }
 
-    async getUserChats(userId) {
+    async getChatList(userId) {
         let chats = [];
         let errors = [];
 
         try {
-            chats = await (new Chat).getUserChats(userId);
+            chats = await (new Chat).getChatList(userId);
         } catch (error) {
             errors = [error.message];
         }
 
-        console.log('RESULT: ', {
-            'chats': chats,
-            'errors': errors
-        });
-
         return {
             chats,
+            errors
+        }
+    }
+
+    async getChatMessages(chatId) {
+        let messages = [];
+        let errors = [];
+
+        try {
+            messages = await (new Chat).getChatMessages(chatId);
+        } catch (error) {
+            errors = [error.message];
+        }
+
+        return {
+            messages,
             errors
         }
     }

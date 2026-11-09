@@ -8,8 +8,21 @@ import { useEffect } from 'react';
 
 export default function Chat() {
     const user = useUserStore((state) => state.state);
-    const chat = useChatStore((store) => store.state.currentChat);
+    const chatState = useChatStore((store) => store.state);
+    const chat = chatState.currentChat;
     const socket = useSocket();
+
+    useEffect(() => {
+        (window as any).chat = chatState;
+        const unsubscribe = useChatStore.subscribe((newState) => {
+            (window as any).chat = newState.state;
+        });
+
+        return () => {
+            unsubscribe();
+            delete (window as any).chat;
+        };
+    }, []);
 
     useEffect(() => {
         if (!socket || !chat.id) return;
@@ -36,9 +49,9 @@ export default function Chat() {
                             </span>
                         </div>
                     :   <div className="chat-window">
-                           <ChatUserInfo chat={chat} />
-                           <ChatMessages chat={chat} />
-                           <ChatInputs chat={chat} />
+                           <ChatUserInfo/>
+                           <ChatMessages/>
+                           <ChatInputs/>
                         </div>
             }
         </div>

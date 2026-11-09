@@ -7,8 +7,6 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 		id: 0,
 		name: '',
 		email: '',
-		create_time: '',
-		city_id: '',
 		errors: {
 			email: [],
 			password: [],
@@ -162,8 +160,6 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 				id: 0,
 				name: '',
 				email: '',
-				create_time: '',
-				city_id: '',
 				errors: {},
 			}
 		}));

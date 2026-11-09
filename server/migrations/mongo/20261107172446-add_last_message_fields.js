@@ -12,7 +12,7 @@ export const up = async (db, client) => {
                 chatImg: '',
                 chatUsers: {},
                 lastMessageSender: null,
-                lastMessageStatus: 'sent',
+                lastMessageStatus: 'delivered',
                 lastMessageCreatedAt: new Date()
             } 
         }

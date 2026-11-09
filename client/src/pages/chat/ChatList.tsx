@@ -7,7 +7,7 @@ import { useSocket } from '@socket/SocketContext';
 import './style.css';
 
 export default function ChatList() {
-    const { setUserChats, clearAllChats } = useChatStore.getState();
+    const { setChatList, clearAllChats } = useChatStore.getState();
     const chatStore = useChatStore((store) => store.state);
     const userState = useUserStore((store) => store.state);
     const socket = useSocket();
@@ -15,16 +15,16 @@ export default function ChatList() {
     useEffect(() => {
         if (!socket || !userState.id) return;
 
-        const getUserChats = ({ chats, errors }: { chats: any[], errors: string[] }) => {
-            console.log('get_user_chats на клиенте:', chats, errors);
-            setUserChats(chats);
+        const getChatList = ({ chats, errors }: { chats: any[], errors: string[] }) => {
+            console.log('get_chat_list на клиенте:', chats, errors);
+            setChatList(chats);
         }
 
-        socket.emit('get_user_chats', [userState.id]);
-        socket.on('get_user_chats', getUserChats);
+        socket.emit('get_chat_list', [userState.id]);
+        socket.on('get_chat_list', getChatList);
 
         return () => {
-            socket.off('get_user_chats', getUserChats);
+            socket.off('get_chat_list', getChatList);
             clearAllChats();
         };
     }, [socket, userState.id]);
@@ -33,9 +33,9 @@ export default function ChatList() {
         <div className="chat-list-wrapper">
             <ChatSearch/>
             {
-                chatStore.userChats.length > 0 && !chatStore.searchedChats.length && !chatStore.searchErrors.length
+                chatStore.chatList.length > 0 && !chatStore.searchedChats.length && !chatStore.searchErrors.length
                     ?   <div className="chat-list">
-                            {chatStore.userChats.map(chat => <ChatItem chat={chat} key={chat._id} />)}
+                            {chatStore.chatList.map(chat => <ChatItem chat={chat} key={chat._id} />)}
                         </div>
                     :   chatStore.searchedChats.length > 0 && !chatStore.searchErrors.length
                             ?   <div className="chat-list">
