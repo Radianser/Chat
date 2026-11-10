@@ -81,7 +81,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 				}));
 			}
 
-			console.log('store.state: ', get().state);
+			// console.log('store.state: ', get().state);
 		} catch (error) {
 			console.error('Ошибка запроса:', error);
 		}
@@ -97,12 +97,49 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
-	setCurrentChatMessages(messages:Record<string, any>) {
+	setCurrentChatMessages(messages:Array<any>) {
 		set(store => ({
 			state: {
 				...store.state,
-				currentChatMessages: messages
+				currentChatMessages: [
+					...messages
+				]
 			}
 		}));
+	},
+
+	addNewMessageToList(message: Record<string, any>) {
+		console.log('new client incoming message: ', message);
+
+		set((store) => {
+			// if (!store.state.currentChat._id && message.conversationId) {
+			// 	store.state.setCurrentChat({ 
+			// 		...store.state.currentChat, 
+			// 		_id: message.conversationId 
+			// 	});
+			// }
+
+			// 1. Проверяем, что сообщение относится к текущему чату
+			if (String(message.conversationId) !== String(store.state.currentChat._id)) {
+				return store;
+			}
+
+			// 2. Проверяем на дубликат
+			const exists = store.state.currentChatMessages.some(
+				(msg: any) => String(msg._id) === String(message._id)
+			);
+			if (exists) return store;
+
+			// 3. Добавляем в конец
+			return {
+				state: {
+					...store.state,
+					currentChatMessages: [
+						...store.state.currentChatMessages,
+						message
+					]
+				}
+			};
+		});
 	}
 }))

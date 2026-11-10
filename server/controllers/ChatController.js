@@ -29,8 +29,13 @@ export default class ChatController {
                 });
 
                 if (existingChat) {
-                    // resultChats.push({ ...existingChat, type: 'direct' });
-                    resultChats.push(existingChat);
+                    resultChats.push({
+                        ...existingChat,
+                        chatUsers: {
+                            [request.session.user.id]: { name: request.session.user.name, img: request.session.user.img },
+                            [user.id]: { name: user.name, img: user.img }
+                        }
+                    });
                 } else {
                     // "Фейковый" чат для пользователя
                     resultChats.push({
@@ -110,6 +115,27 @@ export default class ChatController {
 
         return {
             messages,
+            errors
+        }
+    }
+
+    async saveMessage(message) {
+        let chatId = message.chatId;
+        let savedMessage = null;
+        let errors = [];
+
+        try {
+            if (!chatId) {
+                chatId = await (new Chat).createChat(message);
+            }
+
+            savedMessage = await (new Chat).saveMessage({ ...message, chatId });
+        } catch (error) {
+            errors = [error.message];
+        }
+
+        return {
+            savedMessage,
             errors
         }
     }

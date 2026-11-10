@@ -16,7 +16,7 @@ export default function ChatList() {
         if (!socket || !userState.id) return;
 
         const getChatList = ({ chats, errors }: { chats: any[], errors: string[] }) => {
-            console.log('get_chat_list на клиенте:', chats, errors);
+            // console.log('get_chat_list на клиенте:', chats, errors);
             setChatList(chats);
         }
 

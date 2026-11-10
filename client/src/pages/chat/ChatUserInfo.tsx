@@ -8,7 +8,7 @@ export default function ChatUserInfo() {
     
     let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
     if (chat.type == 'direct') {
-        console.log('chat.chatUsers: ', chat.chatUsers);
+        // console.log('chat.chatUsers: ', chat.chatUsers);
         let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
         chatImg += (chat.chatUsers[companionId]?.img || defaultChatImg);
     } else {

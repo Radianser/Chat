@@ -10,22 +10,31 @@ export const up = async (db, client) => {
         validator: {
             $jsonSchema: {
                 bsonType: 'object',
-                required: ['type', 'participants', 'createdAt', 'updatedAt', 'isPrivate'],
+                required: [
+                    'type',
+                    'participants',
+                    'chatUsers',
+                    'lastMessage',
+                    'lastMessageSender',
+                    'lastMessageStatus',
+                    'lastMessageCreatedAt',
+                    'createdAt',
+                    'isPrivate',
+                ],
                 properties: {
-                    type: {
-                        enum: ['direct', 'group'],
-                        description: 'Тип чата: личный или групповой',
-                    },
+                    type: { enum: ['direct', 'group'] },
                     participants: {
                         bsonType: 'array',
-                        description: 'Массив ID пользователей из MySQL',
-                        items: { bsonType: 'int' }, // Предполагаем, что ID в MySQL числовые
+                        items: { bsonType: 'int' },
                     },
-                    lastMessage: {
-                        bsonType: 'string'
-                    },
+                    chatTitle: { bsonType: 'string' },
+                    chatImg: { bsonType: 'string' },
+                    chatUsers: { bsonType: 'object' },
+                    lastMessage: { bsonType: 'string' },
+                    lastMessageSender: { bsonType: 'int' },
+                    lastMessageStatus: { bsonType: 'string' },
+                    lastMessageCreatedAt: { bsonType: 'date' },
                     createdAt: { bsonType: 'date' },
-                    updatedAt: { bsonType: 'date' },
                     isPrivate: { bsonType: 'bool' },
                 },
             },
@@ -34,7 +43,7 @@ export const up = async (db, client) => {
 
     // Индекс для быстрого получения списка чатов пользователя (отсортированных по времени)
     await db.collection('conversations').createIndex(
-        { participants: 1, updatedAt: -1 }
+        { participants: 1, lastMessageCreatedAt: -1 }
     );
 
     // 2. Создаем коллекцию для сообщений (messages)
@@ -42,13 +51,13 @@ export const up = async (db, client) => {
         validator: {
             $jsonSchema: {
                 bsonType: 'object',
-                required: ['conversationId', 'senderId', 'type', 'createdAt'],
+                required: ['conversationId', 'senderId', 'type', 'status', 'createdAt', 'updatedAt'],
                 properties: {
                     conversationId: { bsonType: 'objectId' },
                     senderId: { bsonType: 'int' },
                     type: { enum: ['text', 'image', 'file'] },
                     text: { bsonType: 'string' },
-                    status: { enum: ['delivered', 'read'] },
+                    status: { enum: ['sent', 'delivered', 'read'] },
                     createdAt: { bsonType: 'date' },
                     updatedAt: { bsonType: 'date' },
                 },

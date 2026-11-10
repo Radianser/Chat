@@ -3,6 +3,7 @@ import { useUserStore } from '@src/stores/user/userStore';
 import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 import { useDateFormat } from '@hooks/useDateFormat';
+import { useSocket } from '@socket/SocketContext';
 
 export default function ChatItem({ chat }:any) {
     const user = useUserStore((state) => state.state);
@@ -10,9 +11,11 @@ export default function ChatItem({ chat }:any) {
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const { formatMessageDate } = useDateFormat();
+    const socket = useSocket();
     
     let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
     if (chat.type == 'direct') {
+        // console.log('ourChat: ', chat);
         let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
         chatImg += (chat.chatUsers[companionId].img || defaultChatImg);
     } else {
@@ -26,14 +29,17 @@ export default function ChatItem({ chat }:any) {
     }
 
     function handleClick(chat:any) {
-        if (currentChat._id == chat._id) return;
-        console.log('chat: ', chat);
+        if (String(currentChat._id) === String(chat._id) || !socket) return;
+        
         setCurrentChat(chat);
+
+        // console.log('join_chat: ', chat);
+        socket.emit('join_chat', chat._id);
     }
 
     return (
         <div 
-            className={currentChat._id == chat._id ? 'chat-selected chat-list-info' : 'chat-list-info'} 
+            className={String(currentChat._id) === String(chat._id) ? 'chat-selected chat-list-info' : 'chat-list-info'} 
             key={chat._id} 
             onClick={() => handleClick(chat)}
         >

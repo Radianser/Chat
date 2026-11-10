@@ -24,20 +24,20 @@ export default function Chat() {
         };
     }, []);
 
-    useEffect(() => {
-        if (!socket || !chat.id) return;
+    // useEffect(() => {
+    //     if (!socket || !chat.id) return;
 
-        const getLastMessages = ({ messages }: { messages: Array<any> }) => {
-            console.log('get_last_messages на клиенте:', messages);
-        }
+    //     const getLastMessages = ({ messages }: { messages: Array<any> }) => {
+    //         console.log('get_last_messages на клиенте:', messages);
+    //     }
 
-        socket.emit('get_last_messages', [user.id, chat.id]);
-        socket.on('get_last_messages', getLastMessages);
+    //     socket.emit('get_last_messages', [user.id, chat.id]);
+    //     socket.on('get_last_messages', getLastMessages);
 
-        return () => {
-            socket.off('get_last_messages', getLastMessages);
-        };
-    }, [socket, chat.id]);
+    //     return () => {
+    //         socket.off('get_last_messages', getLastMessages);
+    //     };
+    // }, [socket, chat.id]);
 
     return (
         <div className="chat-window-wrapper">

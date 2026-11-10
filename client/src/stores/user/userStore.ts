@@ -117,7 +117,7 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 	},
 
 	clearError: (fieldName: string) => {
-		console.log('fieldName: ', fieldName);
+		// console.log('fieldName: ', fieldName);
 
 		set((store) => {
 			// store - это весь iUserStore
