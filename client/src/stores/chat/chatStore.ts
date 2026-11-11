@@ -13,16 +13,16 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 	},
 
 	setChatList(chats) {
-		// let chats = [
-		// 	{id: 1, name: 'John', img: '/resources/5.png', message: "hello! wefwefwe wefwe fwef wefw ef wef wef wef", messageTime: 'Jul 3', messageType: 'income', messageStatus: null},
-		// 	{id: 2, name: 'Kate', img: null, message: 'bye', messageTime: "Jul 4", messageType: 'income', messageStatus: null},
-		// 	{id: 3, name: 'Julia', img: '/resources/6.png', message: "what's up?", messageTime: 'Jul 29', messageType: 'outcome', messageStatus: 'delivered'}
-		// ];
+		const updatedChats = chats.sort((a: any, b: any) => {
+			const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
+			const dateB = new Date(b.lastMessageCreatedAt || 0).getTime();
+			return dateB - dateA;
+		});
 
 		set(store => ({
 			state: {
 				...store.state,
-				chatList: chats
+				chatList: updatedChats
 			}
 		}));
 	},
@@ -138,6 +138,39 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 						...store.state.currentChatMessages,
 						message
 					]
+				}
+			};
+		});
+	},
+
+	updateChatList(message: Record<string, any>) {
+		set((store) => {
+			// 1. Находим чат в списке по conversationId
+			const updatedChats = store.state.chatList.map((chat: any) => {
+				if (String(chat._id) === String(message.conversationId)) {
+					// 2. Обновляем превью
+					return {
+						...chat,
+						lastMessage: message.text,
+						lastMessageSender: message.senderId,
+						lastMessageStatus: message.status,
+						lastMessageCreatedAt: message.createdAt
+					};
+				}
+				return chat;
+			});
+
+			// 3. Сортируем по дате последнего сообщения (сначала новые)
+			updatedChats.sort((a: any, b: any) => {
+				const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
+				const dateB = new Date(b.lastMessageCreatedAt || 0).getTime();
+				return dateB - dateA;
+			});
+
+			return {
+				state: {
+					...store.state,
+					chatList: updatedChats
 				}
 			};
 		});

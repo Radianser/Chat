@@ -127,6 +127,8 @@ export default class ChatController {
         try {
             if (!chatId) {
                 chatId = await (new Chat).createChat(message);
+            } else {
+                await (new Chat).updateChat(message);
             }
 
             savedMessage = await (new Chat).saveMessage({ ...message, chatId });

@@ -3,11 +3,15 @@ import CloseIcon from '@assets/close.svg?react';
 import { useState, useRef } from 'react';
 import { useChatStore } from '@stores/chat/chatStore.ts';
 import { debounce } from '@utils/debounce.ts';
+import { useSocket } from '@socket/SocketContext';
+import { useUserStore } from '@src/stores/user/userStore';
 
 export default function ChatSearch() {
     const { findChats, clearSearchedChats } = useChatStore.getState();
     const [inputValue, setInputValue] = useState('');
     const findChatsDebounce = useRef(debounce(findChats, 500)); // useRef чтобы не пересоздавалась
+    const socket = useSocket();
+    const userState = useUserStore((store) => store.state);
 
     function handleInput(e: any) {
         const value = e.target.value;
@@ -24,6 +28,7 @@ export default function ChatSearch() {
     function handleClear() {
         setInputValue(() => '');
         clearSearchedChats();
+        socket?.emit('get_chat_list', [userState.id]);
     }
 
     return (

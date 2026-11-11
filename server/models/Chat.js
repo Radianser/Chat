@@ -25,6 +25,26 @@ export default class Chat {
         }
     }
 
+    async updateChat(message) {
+        try {
+            await db.mongo.collection('conversations').updateOne(
+                { _id: new ObjectId(message.chatId) },
+                {
+                    $set: {
+                        lastMessage: message.text,
+                        lastMessageSender: message.senderId,
+                        lastMessageStatus: 'sent',
+                        lastMessageCreatedAt: new Date(),
+                        updatedAt: new Date()
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('❌ Ошибка при обновлении чата:', error);
+            throw error;
+        }
+    }
+
     async getChatList(userId) {
         try {
             return await db.mongo.collection('conversations')

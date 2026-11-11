@@ -9,22 +9,14 @@ export default function ChatInputs() {
     const socket = useSocket();
     const [message, setMessage] = useState('');
 
-    // useEffect(() => {
-    //     if (!socket) return;
+    const sendMessageOnEnter = (e: React.KeyboardEvent) => {
+        if (e.code === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
 
-    //     const getNewSentMessage = ({ messages, errors }: { messages: any[], errors: string[] }) => {
-            
-    //         console.log('get_new_sent_message на клиенте:', messages);
-    //     }
-
-    //     socket.on('get_new_sent_message', getNewSentMessage);
-
-    //     return () => {
-    //         socket.off('get_new_sent_message', getNewSentMessage);
-    //     };
-    // }, [socket]);
-
-    function handleInput(e: any) {
+    function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
         setMessage(() => e.target.value);
     }
 
@@ -50,7 +42,8 @@ export default function ChatInputs() {
             <div className="custom-input">
                 <input 
                     value={message} 
-                    onInput={(e) => handleInput(e)} 
+                    onChange={(e) => handleInput(e)}
+                    onKeyUp={(e) => sendMessageOnEnter(e)}
                     type="text" 
                     className="chat-input" 
                     name="message" 

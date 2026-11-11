@@ -4,19 +4,19 @@ import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 import { useDateFormat } from '@hooks/useDateFormat';
 import { useSocket } from '@socket/SocketContext';
+import { useRef } from 'react';
 
 export default function ChatItem({ chat }:any) {
-    const user = useUserStore((state) => state.state);
+    const currentUser = useUserStore((state) => state.state);
     const currentChat = useChatStore(store => store.state.currentChat);
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const { formatMessageDate } = useDateFormat();
     const socket = useSocket();
     
-    let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
+    let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
     if (chat.type == 'direct') {
-        // console.log('ourChat: ', chat);
-        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
+        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
         chatImg += (chat.chatUsers[companionId].img || defaultChatImg);
     } else {
         chatImg += (chat.chatImg ? chat.chatImg : defaultChatImg);
@@ -24,22 +24,39 @@ export default function ChatItem({ chat }:any) {
 
     let chatTitle: string = chat.title;
     if (chat.type == 'direct') {
-        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
-        chatTitle = chat.chatUsers[companionId].name
+        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
+        chatTitle = chat.chatUsers[companionId].name;
     }
 
-    function handleClick(chat:any) {
+    let isSelected: any = false;
+    if (chat.type == 'direct') {
+        // Находим ID собеседника в текущем выбранном чате
+        const currentChatCompanionId = currentChat.chatUsers 
+            ? Object.keys(currentChat.chatUsers).find(id => String(id) !== String(currentUser.id)) 
+            : null;
+
+        // Находим ID собеседника в чате из списка
+        const chatCompanionId = chat.chatUsers 
+            ? Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) 
+            : null;
+
+        isSelected = currentChatCompanionId && currentChatCompanionId === chatCompanionId;
+    } else {
+        isSelected = String(currentChat._id) === String(chat._id);
+    }
+    
+
+    function handleClick(chat:Record<string, any>) {
         if (String(currentChat._id) === String(chat._id) || !socket) return;
         
         setCurrentChat(chat);
 
-        // console.log('join_chat: ', chat);
         socket.emit('join_chat', chat._id);
     }
 
     return (
         <div 
-            className={String(currentChat._id) === String(chat._id) ? 'chat-selected chat-list-info' : 'chat-list-info'} 
+            className={isSelected ? 'chat-selected chat-list-info' : 'chat-list-info'} 
             key={chat._id} 
             onClick={() => handleClick(chat)}
         >
@@ -56,7 +73,7 @@ export default function ChatItem({ chat }:any) {
                 <div className="chat-list-message-info">
                     <div className="chat-list-message-status">
                         {
-                            chat.lastMessageSender == user.id
+                            chat.lastMessageSender == currentUser.id
                                 ? chat.lastMessageStatus == 'read'
                                     ? <SeenMarkIcon className="chat-list-sent-mark" />
                                     : <SentMarkIcon className="chat-list-seen-mark" />

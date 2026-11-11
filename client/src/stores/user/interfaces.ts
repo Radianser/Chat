@@ -2,6 +2,7 @@ export interface iUserState {
 	id: number,
 	name: string,
 	email: string,
+	img: string,
 	errors: Record<string, Array<string>> // объект из строк ключ-значение
 }
 
