@@ -12,7 +12,8 @@ export default function ChatMessages() {
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
     const updateChatList = useChatStore(store => store.updateChatList);
     const socket = useSocket();
-    let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
+    // let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
+    let chatImg: string = '';
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
 
     useEffect(() => {

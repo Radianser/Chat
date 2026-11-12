@@ -5,12 +5,18 @@ import { useChatStore } from '@src/stores/chat/chatStore';
 import { useUserStore } from '@src/stores/user/userStore';
 import { useSocket } from '@socket/SocketContext';
 import { useEffect } from 'react';
+import { useContext } from 'react';
+import { MobileContext } from '@src/context/mobileContext';
 
 export default function Chat() {
     const user = useUserStore((state) => state.state);
     const chatState = useChatStore((store) => store.state);
     const chat = chatState.currentChat;
     const socket = useSocket();
+    const context = useContext(MobileContext);
+    if (!context) return null; // Защита, если провайдера нет
+
+    const { ergonomics } = context;
 
     useEffect(() => {
         (window as any).chat = chatState;
@@ -40,7 +46,10 @@ export default function Chat() {
     // }, [socket, chat.id]);
 
     return (
-        <div className="chat-window-wrapper">
+        <div 
+            className="chat-window-wrapper"
+            style={ergonomics.isChatOpened ? { transform: 'translateX(0px)'} : {}}
+        >
             {
                 !Object.keys(chat).length
                     ?   <div className="chat-window-empty">

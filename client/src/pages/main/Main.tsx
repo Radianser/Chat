@@ -7,6 +7,7 @@ import Chat from '@pages/chat/Chat';
 import ChatList from '@pages/chat/ChatList';
 import '@src/App.css';
 import './style.css';
+import { MobileContext } from '@src/context/mobileContext';
 
 // import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей
 // import 'bootstrap'; // Импорт логики (JS)
@@ -18,6 +19,22 @@ export default function Main() {
     const userState = useUserStore((store) => store.state); // для сохранения реактивности при изменении state
     const [auth, setAuth] = useState('auth');
     const [isLoading, setIsLoading] = useState(true);
+    const [mobileErgonomic, setMobileErgonomic] = useState({
+        windowWidth: window.innerWidth,
+        isChatOpened: false
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMobileErgonomic(prev => ({
+                ...prev,
+                windowWidth: window.innerWidth
+            }));
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         getAuthUser().finally(() => {
@@ -90,8 +107,15 @@ export default function Main() {
                 </div>
             </div>
             <div className='main-chat-page'>
-                <ChatList/>
-                <Chat/>
+
+                <MobileContext.Provider value={{ 
+                    ergonomics: mobileErgonomic, 
+                    setErgonomics: setMobileErgonomic 
+                }}>
+                    <ChatList/>
+                    <Chat/>
+                </MobileContext.Provider>
+
             </div>
         </div>
     )

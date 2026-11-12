@@ -26,6 +26,16 @@ export default defineConfig(({ mode }) => {
                     rewrite: (p) => p.replace(/^\/api/, ''),
                     ws: false,
                 },
+                '/resources': {
+                    target: env.VITE_WEB_SERVER_URL,
+                    changeOrigin: true,
+                    // rewrite не нужен, так как путь /resources совпадает
+                },
+                '/socket.io': {
+                    target: env.VITE_WEB_SERVER_URL,
+                    ws: true, // Включаем WebSocket
+                    changeOrigin: true,
+                }
             },
         },
         resolve: {

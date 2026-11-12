@@ -4,7 +4,8 @@ import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 import { useDateFormat } from '@hooks/useDateFormat';
 import { useSocket } from '@socket/SocketContext';
-import { useRef } from 'react';
+import { useContext } from 'react';
+import { MobileContext } from '@src/context/mobileContext';
 
 export default function ChatItem({ chat }:any) {
     const currentUser = useUserStore((state) => state.state);
@@ -13,8 +14,13 @@ export default function ChatItem({ chat }:any) {
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const { formatMessageDate } = useDateFormat();
     const socket = useSocket();
+
+    const context = useContext(MobileContext);
+    if (!context) return null;
+    const { ergonomics, setErgonomics } = context;
     
-    let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
+    // let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
+    let chatImg: string = '';
     if (chat.type == 'direct') {
         let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
         chatImg += (chat.chatUsers[companionId].img || defaultChatImg);
@@ -50,8 +56,14 @@ export default function ChatItem({ chat }:any) {
         if (String(currentChat._id) === String(chat._id) || !socket) return;
         
         setCurrentChat(chat);
-
         socket.emit('join_chat', chat._id);
+
+        if (ergonomics.windowWidth < Number(import.meta.env.VITE_MOBILE_DEVICE_WIDTH)) {
+            setErgonomics(prev => ({
+                ...prev,
+                isChatOpened: true
+            }));
+        }
     }
 
     return (

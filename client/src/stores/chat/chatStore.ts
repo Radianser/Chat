@@ -27,6 +27,15 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
+	clearCurrentChat() {
+		set(store => ({
+			state: {
+				...store.state,
+				currentChat: {}
+			}
+		}));
+	},
+
 	clearAllChats() {
 		set(store => ({
 			state: {

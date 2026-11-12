@@ -14,6 +14,7 @@ export interface iChatStore {
 	addNewMessageToList: (message:Record<string, any>) => void,
 	updateChatList: (message:Record<string, any>) => void,
 	setChatList: (chats: Array<any>) => void,
+	clearCurrentChat: () => void,
 	clearAllChats: () => void,
 	clearSearchedChats: () => void,
 	findChats: (name: string) => void

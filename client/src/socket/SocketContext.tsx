@@ -9,8 +9,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const [socket, setSocket] = useState<SocketType>(null);
 
     useEffect(() => {
-        // ВАЖНО: URL берём из env, а не хардкодим
-        const newSocket = io(import.meta.env.VITE_WEB_SERVER_URL, {
+        const newSocket = io('/', {
             autoConnect: true,
         });
         setSocket(newSocket);

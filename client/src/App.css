@@ -52,7 +52,7 @@
 }
 
 #root {
-	height: 100vh;
+	height: 100svh;
 	box-sizing: border-box;
 	padding: 15px 10%;
 	color: var(--text);
@@ -153,4 +153,10 @@ button {
     100% {
         transform: rotate(360deg);
     }
+}
+
+@media (max-width: 768px) {
+	#root {
+		padding: 15px;
+	}
 }
