@@ -132,45 +132,6 @@
     overflow: auto;
 }
 
-.message {
-    display: flex;
-    align-items: flex-end;
-    gap: 5px;
-    font-size: 14px;
-}
-
-.message.right-side {
-    justify-content: flex-end;
-}
-
-.message.left-side {
-    justify-content: flex-start;
-}
-
-.message.right-side > div, .message.left-side > div {
-    background-color: var(--primary);
-    padding: 5px 10px;
-    width: fit-content;
-    max-width: 50%;
-}
-
-.message.right-side > div {
-    border-radius: 10px 10px 0 10px;
-}
-
-.message.left-side > div {
-    border-radius: 10px 10px 10px 0;
-}
-
-.message img {
-    height: 25px;
-    border-radius: 999px;
-    border: 4px solid var(--primary);
-    background-color: var(--secondary);
-    object-fit: cover;
-    object-position: center;
-}
-
 .chat-inputs-wrapper {
     background-color: var(--primary);
     height: 60px;

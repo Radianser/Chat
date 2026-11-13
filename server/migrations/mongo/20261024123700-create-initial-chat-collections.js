@@ -57,7 +57,7 @@ export const up = async (db, client) => {
                     senderId: { bsonType: 'int' },
                     type: { enum: ['text', 'image', 'file'] },
                     text: { bsonType: 'string' },
-                    status: { enum: ['sent', 'delivered', 'read'] },
+                    status: { enum: ['sent', 'read'] },
                     createdAt: { bsonType: 'date' },
                     updatedAt: { bsonType: 'date' },
                 },

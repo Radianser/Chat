@@ -90,7 +90,7 @@ export default class Chat {
                 senderId: message.senderId,
                 type: message.type,
                 text: message.text,
-                status: 'delivered',
+                status: 'sent',
                 createdAt: new Date(),
                 updatedAt: new Date()
             };

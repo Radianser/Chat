@@ -86,9 +86,9 @@ export default function ChatItem({ chat }:any) {
                     <div className="chat-list-message-status">
                         {
                             chat.lastMessageSender == currentUser.id
-                                ? chat.lastMessageStatus == 'read'
-                                    ? <SeenMarkIcon className="chat-list-sent-mark" />
-                                    : <SentMarkIcon className="chat-list-seen-mark" />
+                                ? chat.lastMessageStatus == 'sent'
+                                    ? <SentMarkIcon className="chat-list-seen-mark status-mark" />
+                                    : <SeenMarkIcon className="chat-list-sent-mark status-mark" />
                                 : ''
                         }
                     </div>
