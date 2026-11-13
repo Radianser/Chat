@@ -10,7 +10,7 @@ cd Chat && npm install<br>
 npm --prefix client run install<br>
 npm --prefix server run install
 
-3. install dependencies
+3. configure email access in .env
 
 4. launch docker:<br>
 docker compose down # The -v flag deletes data in the databases<br>
