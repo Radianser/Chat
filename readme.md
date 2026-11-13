@@ -1,24 +1,23 @@
 <div>http://localhost:3000 — backend</div>
 <div>http://localhost:5173 — frontend</div>
-<div>To start both backend and frontend execute "npm run start"</div>
 <br>
-<div>Используется свой фреймворк на базе Node.js/Express на бэке (API), React/TypeScript на фронте (SPA), базы: MySQL, MongoDB, PostgreSQL</div>
+<div>I use my own framework based on Node.js/Express on the backend (API), React/TypeScript on the frontend (SPA), databases: MySQL, MongoDB, PostgreSQL</div>
 
 1. git clone https://github.com/radianser/Chat.git
 
-2. устанавливаем зависимости:<br>
+2. install dependencies:<br>
 cd Chat && npm install<br>
 npm --prefix client run install<br>
 npm --prefix server run install
 
-3. настраиваем в .env доступы к почте
+3. install dependencies
 
-4. запускаем докер:<br>
-docker compose down # Флаг -v удаляет данные в базах<br>
-docker compose up -d # Флаг -d включает фоновый режим и возвращает управление терминалом
+4. launch docker:<br>
+docker compose down # The -v flag deletes data in the databases<br>
+docker compose up -d # The -d flag enables background mode and returns control to the terminal
 
-5. накатываем миграции:<br>
+5. roll out migrations:<br>
 npm --prefix server run migrate:all
 
-6. стартуем сервера:<br>
+6. start the servers:<br>
 npm run start
