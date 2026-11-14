@@ -27,15 +27,6 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
-	clearCurrentChat() {
-		set(store => ({
-			state: {
-				...store.state,
-				currentChat: {}
-			}
-		}));
-	},
-
 	clearAllChats() {
 		set(store => ({
 			state: {
@@ -106,6 +97,15 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
+	clearCurrentChat() {
+		set(store => ({
+			state: {
+				...store.state,
+				currentChat: {}
+			}
+		}));
+	},
+
 	setCurrentChatMessages(messages:Array<any>) {
 		set(store => ({
 			state: {
@@ -143,6 +143,13 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 			return {
 				state: {
 					...store.state,
+					currentChat: {
+						...store.state.currentChat,
+						lastMessage: message.text,
+						lastMessageSender: message.senderId,
+						lastMessageStatus: message.status,
+						lastMessageCreatedAt: message.createdAt,
+					},
 					currentChatMessages: [
 						...store.state.currentChatMessages,
 						message

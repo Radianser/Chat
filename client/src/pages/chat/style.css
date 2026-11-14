@@ -58,11 +58,19 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 220px;
+    width: 100%;
+    min-width: 0;
 }
 
 .chat-list-user-last-message, .chat-list-message-time {
     font-size: 14px;
+}
+
+.chat-list-user-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
 .chat-search-wrapper {
@@ -162,20 +170,39 @@
 }
 
 .message.right-side > div {
+    margin-top: 15px;
     border-radius: 10px 10px 0 10px;
 }
 
 .message.left-side > div {
+    margin-top: 15px;
     border-radius: 10px 10px 10px 0;
+}
+
+.message.right-side.rounded > div,
+.message.left-side.rounded > div {
+    margin-top: 5px;
+    border-radius: 10px;
 }
 
 .message img {
     height: 25px;
-    border-radius: 999px;
     border: 4px solid var(--primary);
-    background-color: var(--secondary);
+    background-color: var(--primary);
     object-fit: cover;
     object-position: center;
+}
+
+.message.right-side img {
+    border-radius: 999px 999px 999px 0;
+}
+
+.message.left-side img {
+    border-radius: 999px 999px 0 999px;
+}
+
+.message.date {
+    margin: 15px auto;
 }
 
 .message-info {
