@@ -98,8 +98,6 @@ export default class FieldsValidation {
                 password: []
             }
         };
-
-        console.log('password auth: ', password);
         
         const match = this.#user ? await bcrypt.compare(password, this.#user.password) : '';
         

@@ -116,4 +116,19 @@ export default class User {
             throw error; 
         }
     }
+
+    async updateUserLastSeenTime(userId) {
+        try {
+            const query = `
+                UPDATE users
+                SET last_seen_at=NOW() WHERE id=$1
+                RETURNING last_seen_at
+            `;
+            const result = await db.pg.query(query, [userId]);
+            return result.rows[0]?.last_seen_at;
+        } catch (error) {
+            console.error('❌ Ошибка при обновлении last_seen_at:', error);
+            throw error; 
+        }
+    }
 }

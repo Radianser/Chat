@@ -8,6 +8,7 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 		name: '',
 		email: '',
 		img: '',
+		last_seen_at: '',
 		errors: {
 			email: [],
 			password: [],

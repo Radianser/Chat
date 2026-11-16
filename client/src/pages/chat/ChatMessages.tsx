@@ -14,8 +14,6 @@ export default function ChatMessages() {
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
     const updateChatList = useChatStore(store => store.updateChatList);
     const socket = useSocket();
-    // let chatImg = import.meta.env.VITE_WEB_SERVER_URL;
-    let chatImg: string = '';
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const messageRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +58,18 @@ export default function ChatMessages() {
 
     return (
         <div className="chat-messages" ref={messageRef}>
+            {
+                currentChat.type === 'direct'
+                    ? directChat(currentChatMessages, currentChat, currentUser, defaultChatImg)
+                    : groupChat()
+            }
+        </div>
+    );
+}
+
+function directChat(currentChatMessages: Array<any>, currentChat: Record<string, any>, currentUser: Record<string, any>, defaultChatImg: string) {
+    return (
+        <>
             {currentChatMessages.map((message:any, index:number) => {
                 let date = new Date(message.updatedAt);
                 let messageHTML = message.senderId == currentUser.id
@@ -88,7 +98,7 @@ export default function ChatMessages() {
                             </div>
                             {
                                 currentChatMessages[index - 1]?.senderId != message.senderId
-                                    ?   <img src={chatImg + currentUser.img} alt="" />
+                                    ?   <img src={currentUser.img} alt="" />
                                     :   <span style={{width: '33px'}}></span>
                             }
                         </div>
@@ -101,9 +111,9 @@ export default function ChatMessages() {
                         >
                             {
                                 currentChatMessages[index - 1]?.senderId != message.senderId
-                                    ?   <img src={chatImg + (currentChat.chatUsers[message.senderId].img 
+                                    ?   <img src={currentChat.chatUsers[message.senderId].img 
                                             ?   currentChat.chatUsers[message.senderId].img 
-                                            :   defaultChatImg)} alt="" 
+                                            :   defaultChatImg} alt="" 
                                         />
                                     :   <span style={{width: '33px'}}></span>
                             }
@@ -133,6 +143,12 @@ export default function ChatMessages() {
                         {messageHTML}
                     </React.Fragment>;
             })}
-        </div>
-    );
+        </>
+    )
+}
+
+function groupChat() {
+    return (
+        <></>
+    )
 }

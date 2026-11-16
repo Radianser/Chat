@@ -121,13 +121,6 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		console.log('new client incoming message: ', message);
 
 		set((store) => {
-			// if (!store.state.currentChat._id && message.conversationId) {
-			// 	store.state.setCurrentChat({ 
-			// 		...store.state.currentChat, 
-			// 		_id: message.conversationId 
-			// 	});
-			// }
-
 			// 1. Проверяем, что сообщение относится к текущему чату
 			if (String(message.conversationId) !== String(store.state.currentChat._id)) {
 				return store;

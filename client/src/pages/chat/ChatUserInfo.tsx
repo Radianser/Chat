@@ -1,7 +1,8 @@
 import { useChatStore } from '@src/stores/chat/chatStore';
 import { useUserStore } from '@src/stores/user/userStore';
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { MobileContext } from '@src/context/mobileContext';
+import { useSocket } from '@socket/SocketContext';
 
 export default function ChatUserInfo() {
     const user = useUserStore((state) => state.state);
@@ -10,13 +11,46 @@ export default function ChatUserInfo() {
     const clearCurrentChat = useChatStore(store => store.clearCurrentChat);
     const context = useContext(MobileContext);
     if (!context) return null;
-
     const { ergonomics, setErgonomics } = context;
+    const socket = useSocket();
+    const [chatOnlineStatus, setChatOnlineStatus] = useState<string>('');
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const companionsId = Object.keys(chat.chatUsers).filter(id => String(id) !== String(user.id));
+        console.log('companionsId: ', companionsId);
+        
+        const setUserOnlineStatus = (data:any) => {
+            console.log('setUserOnlineStatus: ', data);
+
+            if (
+                chat.type == 'direct' &&
+                data.isOnline
+            ) {
+                setChatOnlineStatus(() => 'Online');
+            } else if (
+                chat.type == 'direct' &&
+                !data.isOnline
+            ) {
+                setChatOnlineStatus(() => `Last seen at: ${(new Date(data.lastSeen)).toLocaleDateString('en-EN', { 
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                })}`);
+            }
+        }
+
+        socket.emit('get_user_status', [...companionsId]);
+        socket.on('user_status_received', setUserOnlineStatus)
+
+        return () => {
+            socket.off('user_status_received', setUserOnlineStatus)
+        }
+    }, [socket, chat.chatUsers]);
     
-    // let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
     let chatImg: string = '';
     if (chat.type == 'direct') {
-        // console.log('chat.chatUsers: ', chat.chatUsers);
         let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
         chatImg += (chat.chatUsers[companionId]?.img || defaultChatImg);
     } else {
@@ -48,7 +82,7 @@ export default function ChatUserInfo() {
                     {chatTitle}
                 </div>
                 <div className="chat-user-status">
-                    Online
+                    {chatOnlineStatus}
                 </div>
             </div>
         </div>

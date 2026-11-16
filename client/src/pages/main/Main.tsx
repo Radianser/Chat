@@ -8,6 +8,7 @@ import ChatList from '@pages/chat/ChatList';
 import '@src/App.css';
 import './style.css';
 import { MobileContext } from '@src/context/mobileContext';
+import { useSocket } from '@socket/SocketContext';
 
 // import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей
 // import 'bootstrap'; // Импорт логики (JS)
@@ -23,6 +24,7 @@ export default function Main() {
         windowWidth: window.innerWidth,
         isChatOpened: false
     });
+    const socket = useSocket();
 
     useEffect(() => {
         const handleResize = () => {
@@ -60,6 +62,9 @@ export default function Main() {
 
     function handleLogout(e: any) {
         e.preventDefault();
+        if (socket) {
+            socket.disconnect();
+        }
         logoutUser();
     }
 
