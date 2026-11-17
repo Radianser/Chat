@@ -35,7 +35,7 @@ export default function ChatSearch() {
         <div className="chat-search-wrapper">
             <div className="custom-input">
                 <MagnifierIcon className="custom-input-magnifier" />
-                <input type="text" className="chat-search" name="chatName" placeholder="Search Chats" value={inputValue} onInput={(e) => handleInput(e)} />
+                <input type="text" className="chat-search" name="chatName" placeholder="Name or email" value={inputValue} onInput={(e) => handleInput(e)} />
                 {
                     inputValue.length > 0
                         ? <CloseIcon className="custom-input-close" onClick={() => handleClear()} />

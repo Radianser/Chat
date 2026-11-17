@@ -53,7 +53,7 @@ const routes = [
         path: '/find-chats/',
         method: 'POST',
         controller: 'ChatController',
-        action: 'find_chats',
+        action: 'findChats',
         middlewares: []
     }
 ];

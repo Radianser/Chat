@@ -23,8 +23,10 @@ export default function ChatMessages() {
         const getMessages = ({ messages, errors }: { messages: any[], errors: string[] }) => {
             setCurrentChatMessages(messages);
 
-            if (!messageRef.current) return;
-            messageRef.current.scrollTop = messageRef.current.scrollHeight;
+            requestAnimationFrame(() => {
+                if (!messageRef.current) return;
+                messageRef.current.scrollTop = messageRef.current.scrollHeight;
+            });
         }
         socket.emit('get_messages', [currentChat._id]);
         socket.on('get_messages', getMessages);
@@ -68,14 +70,30 @@ export default function ChatMessages() {
 }
 
 function directChat(currentChatMessages: Array<any>, currentChat: Record<string, any>, currentUser: Record<string, any>, defaultChatImg: string) {
+    if (!currentChatMessages.length) {
+        return (
+            <div className='no-messages-wrapper'>
+                <div className='no-messages-text'>There are no messages yet</div>
+            </div>
+        );
+    }
+    
     return (
         <>
             {currentChatMessages.map((message:any, index:number) => {
+                let messageDateCurrent = (new Date(message.createdAt)).toLocaleDateString('en-EN', { day: '2-digit', month: 'long' });
+                let messageDatePrev = (new Date(currentChatMessages[index - 1]?.createdAt)).toLocaleDateString('en-EN', { day: '2-digit', month: 'long' });
+                let messageDateHTML = messageDatePrev != messageDateCurrent
+                    ?   <div className="message date" key={`date-${message._id}`}>
+                            {messageDateCurrent}
+                        </div>
+                    :   ''
+
                 let date = new Date(message.updatedAt);
                 let messageHTML = message.senderId == currentUser.id
                     ?   <div
                             className={
-                                currentChatMessages[index - 1]?.senderId != message.senderId
+                                currentChatMessages[index - 1]?.senderId != message.senderId || messageDatePrev != messageDateCurrent
                                     ?   "message right-side"
                                     :   "message right-side rounded"
                             }
@@ -97,20 +115,20 @@ function directChat(currentChatMessages: Array<any>, currentChat: Record<string,
                                 </div>
                             </div>
                             {
-                                currentChatMessages[index - 1]?.senderId != message.senderId
+                                currentChatMessages[index - 1]?.senderId != message.senderId || messageDatePrev != messageDateCurrent
                                     ?   <img src={currentUser.img} alt="" />
                                     :   <span style={{width: '33px'}}></span>
                             }
                         </div>
                     :   <div
                             className={
-                                currentChatMessages[index - 1]?.senderId != message.senderId
+                                currentChatMessages[index - 1]?.senderId != message.senderId || messageDatePrev != messageDateCurrent
                                     ?   "message left-side"
                                     :   "message left-side rounded"
                             }
                         >
                             {
-                                currentChatMessages[index - 1]?.senderId != message.senderId
+                                currentChatMessages[index - 1]?.senderId != message.senderId || messageDatePrev != messageDateCurrent
                                     ?   <img src={currentChat.chatUsers[message.senderId].img 
                                             ?   currentChat.chatUsers[message.senderId].img 
                                             :   defaultChatImg} alt="" 
@@ -129,14 +147,6 @@ function directChat(currentChatMessages: Array<any>, currentChat: Record<string,
                                 </div>
                             </div>
                         </div>
-
-                let messageDateCurrent = (new Date(message.createdAt)).toLocaleDateString('en-EN', { day: '2-digit', month: 'long' });
-                let messageDatePrev = (new Date(currentChatMessages[index - 1]?.createdAt)).toLocaleDateString('en-EN', { day: '2-digit', month: 'long' });
-                let messageDateHTML = messageDatePrev != messageDateCurrent
-                    ?   <div className="message date" key={`date-${message._id}`}>
-                            {messageDateCurrent}
-                        </div>
-                    :   ''
 
                 return <React.Fragment key={message._id}>
                         {messageDateHTML}

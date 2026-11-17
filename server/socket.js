@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import ChatController from '#controllers/ChatController.js';
-import UserController from '#controllers/UserController.js';
-import { db } from "#config/db_conn.js";
+import User from '#models/User.js';
+import Chat from '#models/Chat.js';
 
 let io = null;
 
@@ -28,7 +28,7 @@ export const initSocket = async (server) => {
             onlineUsers.set(socket.userId, socket.id);
             socket.join(`user_${socket.userId}`);
 
-            await changeUserStatus(socket, {
+            await emitUserNewStatus(socket, {
                 userId: socket.userId,
                 isOnline: true
             });
@@ -91,6 +91,7 @@ export const initSocket = async (server) => {
         socket.on('get_user_status', async (userIds) => {
             console.log('onlineUsers: ', onlineUsers);
 
+            const offlineUsers = [];
             for (const userId of userIds) {
                 const onlineUser = onlineUsers.get(String(userId));
 
@@ -100,27 +101,33 @@ export const initSocket = async (server) => {
                         isOnline: true
                     });
                 } else {
-                    try {
-                        const result = await db.pg.query(
-                            'SELECT last_seen_at FROM users WHERE id = $1',
-                            [userId]
-                        );
-                        
-                        const lastSeen = result.rows[0]?.last_seen_at || null;
+                    offlineUsers.push(userId);
+                }
+            }
 
-                        socket.emit('user_status_received', {
-                            userId: userId,
-                            isOnline: false,
-                            lastSeen: lastSeen
+            if (offlineUsers.length) {
+                try {
+                    const result = await (new User).getUsersLastSeenTime(offlineUsers);
+
+                    if (result.length) {
+                        result.forEach(user => {
+                            socket.emit('user_status_received', {
+                                userId: user.id,
+                                isOnline: false,
+                                lastSeen: user.last_seen_at
+                            });
                         });
-                    } catch (error) {
-                        console.error('Ошибка при получении статуса из БД:', error);
+                    }
+                } catch (error) {
+                    offlineUsers.forEach(id => {
                         socket.emit('user_status_received', {
-                            userId: userId,
+                            userId: id,
                             isOnline: false,
                             lastSeen: null
                         });
-                    }
+                    });
+
+                    console.error('Ошибка при получении статуса из БД:', error);
                 }
             }
         });
@@ -129,9 +136,9 @@ export const initSocket = async (server) => {
             if (!socket.userId) return;
 
             onlineUsers.delete(socket.userId);
-            const lastSeen = await (new UserController).updateUserLastSeenTime(socket.userId);
+            const lastSeen = await (new User).updateUserLastSeenTime(socket.userId);
             
-            await changeUserStatus(socket, {
+            await emitUserNewStatus(socket, {
                 userId: socket.userId,
                 isOnline: false,
                 lastSeen: lastSeen
@@ -142,10 +149,8 @@ export const initSocket = async (server) => {
         });
     });
 
-    async function changeUserStatus(socket, user) {
-        const userChats = await db.mongo.collection('conversations').find({
-            participants: Number(user.userId)
-        }).toArray();
+    async function emitUserNewStatus(socket, user) {
+        const userChats = await (new Chat).getChatList(Number(user.userId));
         const companionIds = new Set();
 
         userChats.forEach(chat => {

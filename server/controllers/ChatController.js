@@ -8,7 +8,7 @@ import { db } from "#config/db_conn.js";
 export default class ChatController {
     constructor() {}
 
-    async find_chats(request, response) {
+    async findChats(request, response) {
         let errors = [];
         let resultChats = [];
         const searchString = request.body.string;

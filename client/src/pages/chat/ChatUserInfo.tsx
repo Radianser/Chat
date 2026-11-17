@@ -21,23 +21,27 @@ export default function ChatUserInfo() {
         const companionsId = Object.keys(chat.chatUsers).filter(id => String(id) !== String(user.id));
         console.log('companionsId: ', companionsId);
         
-        const setUserOnlineStatus = (data:any) => {
-            console.log('setUserOnlineStatus: ', data);
+        const setUserOnlineStatus = (user: Record<string, any>) => {
+            console.log('setUserOnlineStatus: ', user);
 
             if (
                 chat.type == 'direct' &&
-                data.isOnline
+                user.isOnline
             ) {
                 setChatOnlineStatus(() => 'Online');
             } else if (
                 chat.type == 'direct' &&
-                !data.isOnline
+                !user.isOnline
             ) {
-                setChatOnlineStatus(() => `Last seen at: ${(new Date(data.lastSeen)).toLocaleDateString('en-EN', { 
+                setChatOnlineStatus(() => `Last seen at: ${(new Date(user.lastSeen)).toLocaleDateString('en-EN', { 
+                    hour: '2-digit',
+                    minute: '2-digit',
                     day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
+                    month: 'short',
+                    // year: 'numeric'
                 })}`);
+            } else if (chat.type == 'group') {
+
             }
         }
 
