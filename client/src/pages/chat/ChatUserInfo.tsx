@@ -33,7 +33,7 @@ export default function ChatUserInfo() {
                 chat.type == 'direct' &&
                 !user.isOnline
             ) {
-                setChatOnlineStatus(() => `Last seen at: ${(new Date(user.lastSeen)).toLocaleDateString('en-EN', { 
+                setChatOnlineStatus(() => `${(new Date(user.lastSeen)).toLocaleDateString('en-EN', { 
                     hour: '2-digit',
                     minute: '2-digit',
                     day: '2-digit',

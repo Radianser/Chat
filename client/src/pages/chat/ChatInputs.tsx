@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSocket } from '@socket/SocketContext';
 import { useChatStore } from '@src/stores/chat/chatStore.ts';
 import { useUserStore } from '@src/stores/user/userStore';
@@ -8,6 +8,7 @@ export default function ChatInputs() {
     const currentUser = useUserStore((state) => state.state);
     const socket = useSocket();
     const [message, setMessage] = useState('');
+    const debounce = useRef<boolean>(false);
 
     const sendMessageOnEnter = (e: React.KeyboardEvent) => {
         if (e.code === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey) {
@@ -18,6 +19,19 @@ export default function ChatInputs() {
 
     function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
         setMessage(() => e.target.value);
+
+        if (!socket || debounce.current) return;
+
+        debounce.current = true;
+        socket.emit('user_typing', {
+            userId: currentUser.id,
+            userName: currentUser.name,
+            chatId: currentChat._id,
+        });
+
+        setTimeout(() => {
+            debounce.current = false;
+        }, 2000);
     }
 
     function sendMessage() {

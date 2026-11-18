@@ -4,7 +4,7 @@ import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 import { useDateFormat } from '@hooks/useDateFormat';
 import { useSocket } from '@socket/SocketContext';
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { MobileContext } from '@src/context/mobileContext';
 
 export default function ChatItem({ chat }:any) {
@@ -14,10 +14,40 @@ export default function ChatItem({ chat }:any) {
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const { formatMessageDate } = useDateFormat();
     const socket = useSocket();
-
+    const [onlineIndicator, setOnlineIndicator] = useState(false);
     const context = useContext(MobileContext);
     if (!context) return null;
     const { ergonomics, setErgonomics } = context;
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const setUserOnlineIndicator = (user: Record<string, any>) => {
+            console.log('setUserOnlineStatus: ', user);
+
+            if (
+                chat.type == 'direct' &&
+                user.isOnline
+            ) {
+                setOnlineIndicator(() => true);
+            } else if (
+                chat.type == 'direct' &&
+                !user.isOnline
+            ) {
+                setOnlineIndicator(() => false);
+            }
+        }
+
+        if (chat.type == 'direct') {
+            const companionId = Object.keys(chat.chatUsers).filter(id => String(id) !== String(currentUser.id));
+            socket.emit('get_user_status', [companionId]);
+        }
+        socket.on('user_status_received', setUserOnlineIndicator)
+
+        return () => {
+            socket.off('user_status_received', setUserOnlineIndicator)
+        }
+    }, [socket, chat]);
     
     // let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
     let chatImg: string = '';
@@ -72,7 +102,10 @@ export default function ChatItem({ chat }:any) {
             key={chat._id} 
             onClick={() => handleClick(chat)}
         >
-            <img src={chatImg} alt="" />
+            <div className='chat-list-img-block'>
+                <img src={chatImg} alt="" />
+                {chat.type == 'direct' && onlineIndicator ? <div className='online-indicator'></div> : ''}
+            </div>
             <div>
                 <div className="chat-list-user-info">
                     <div className="chat-list-user-name">

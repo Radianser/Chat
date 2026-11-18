@@ -61,6 +61,10 @@ export const initSocket = async (server) => {
             socket.emit('get_messages', messages);
         });
 
+        socket.on('user_typing', async (data) => {
+            io.to(data.chatId).emit('user_typing', { id: data.userId, name: data.userName });
+        });
+
         socket.on('send_new_message', async (newMessage) => {
             // console.log('📥 send_new_message на сервере:', newMessage);
             

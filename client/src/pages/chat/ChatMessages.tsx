@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSocket } from '@socket/SocketContext';
 import { useChatStore } from '@src/stores/chat/chatStore.ts';
 import { useUserStore } from '@src/stores/user/userStore';
@@ -15,7 +15,9 @@ export default function ChatMessages() {
     const updateChatList = useChatStore(store => store.updateChatList);
     const socket = useSocket();
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
-    const messageRef = useRef<HTMLDivElement>(null);
+    const messagesWrapperRef = useRef<HTMLDivElement>(null);
+    const [typingUsers, setTypingUsers] = useState<Record<string, any>[]>([]);
+    const typingTimers = useRef<{ [key: string]: any }>({});
 
     useEffect(() => {
         if (!socket) return;
@@ -24,8 +26,8 @@ export default function ChatMessages() {
             setCurrentChatMessages(messages);
 
             requestAnimationFrame(() => {
-                if (!messageRef.current) return;
-                messageRef.current.scrollTop = messageRef.current.scrollHeight;
+                if (!messagesWrapperRef.current) return;
+                messagesWrapperRef.current.scrollTop = messagesWrapperRef.current.scrollHeight;
             });
         }
         socket.emit('get_messages', [currentChat._id]);
@@ -36,8 +38,8 @@ export default function ChatMessages() {
                 setCurrentChat({ ...currentChat, _id: message.conversationId });
             }
 
-            if (!messageRef.current) return;
-            const { scrollTop, scrollHeight, clientHeight } = messageRef.current;
+            if (!messagesWrapperRef.current) return;
+            const { scrollTop, scrollHeight, clientHeight } = messagesWrapperRef.current;
             const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
             
             addNewMessageToList(message);
@@ -45,25 +47,94 @@ export default function ChatMessages() {
 
             if (isAtBottom) {
                 requestAnimationFrame(() => {
-                    if (!messageRef.current) return;
-                    messageRef.current.scrollTop = messageRef.current.scrollHeight;
+                    setTimeout(() => {
+                        if (messagesWrapperRef.current) {
+                            messagesWrapperRef.current.scrollTop = messagesWrapperRef.current.scrollHeight;
+                        }
+                    }, 0);
                 });
             }
         }
         socket.on('new_incoming_message', newIncomingMessage);
 
+        const userTyping = (user: Record<string, any>) => {
+            if (user.id == currentUser.id) return;
+
+            setTypingUsers(prev => {
+                const exists = prev.find(typingUser => typingUser.id === user.id);
+                return exists ? prev : [...prev, user];
+            });
+
+            if (!messagesWrapperRef.current) return;
+            const { scrollTop, scrollHeight, clientHeight } = messagesWrapperRef.current;
+            const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+
+            if (isAtBottom) {
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        if (messagesWrapperRef.current) {
+                            messagesWrapperRef.current.scrollTop = messagesWrapperRef.current.scrollHeight;
+                        }
+                    }, 0);
+                });
+            }
+
+            if (typingTimers.current[user.id]) {
+                clearTimeout(typingTimers.current[user.id]);
+            }
+
+            typingTimers.current[user.id] = setTimeout(() => {
+                setTypingUsers(prev => prev.filter(typingUser => typingUser.id !== user.id));
+            }, 3000);
+        }
+        socket.on('user_typing', userTyping);
+
         return () => {
             socket.off('get_messages', getMessages);
             socket.off('new_incoming_message', newIncomingMessage);
+            socket.off('user_typing', userTyping);
         };
     }, [socket, currentChat._id]);
 
     return (
-        <div className="chat-messages" ref={messageRef}>
+        <div className="chat-messages" ref={messagesWrapperRef}>
             {
                 currentChat.type === 'direct'
-                    ? directChat(currentChatMessages, currentChat, currentUser, defaultChatImg)
-                    : groupChat()
+                    ?   directChat(currentChatMessages, currentChat, currentUser, defaultChatImg)
+                    :   groupChat()
+            }
+            {
+                typingUsers.length === 1
+                    ?   <div className='typing-indicator'>
+                            <div>
+                                {typingUsers.map((user: Record<string, any>) => `${user.name} is typing`)}
+                            </div>
+                            <div className='typing-indicator-points-wrapper'>
+                                <div className='typing-indicator-points'></div>
+                                <div className='typing-indicator-points'></div>
+                                <div className='typing-indicator-points'></div>
+                            </div>
+                        </div>
+                    :   typingUsers.length > 1
+                        ?   <div className='typing-indicator'>
+                                <div>
+                                    {
+                                        typingUsers.map((user: Record<string, any>, index: number) => {
+                                            if (index === 0) {
+                                                return user.name;
+                                            } else {
+                                                return `, ${user.name}`;
+                                            }
+                                        })
+                                    } are typing
+                                </div>
+                                <div className='typing-indicator-points-wrapper'>
+                                    <div className='typing-indicator-points'></div>
+                                    <div className='typing-indicator-points'></div>
+                                    <div className='typing-indicator-points'></div>
+                                </div>
+                            </div>
+                        :   ''
             }
         </div>
     );
