@@ -38,7 +38,7 @@ export default function ChatInputs() {
         if (!message || !socket) return;
 
         socket.emit('send_new_message', {
-            chatId: currentChat._id,
+            conversationId: currentChat._id,
             senderId: currentUser.id,
             participants: Object.keys(currentChat.chatUsers).map(id => Number(id)),
             chatUsers: currentChat.chatUsers,

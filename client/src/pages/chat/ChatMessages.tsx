@@ -8,19 +8,25 @@ import SeenMarkIcon from '@assets/doneMark.svg?react';
 export default function ChatMessages() {
     const currentUser = useUserStore((state) => state.state);
     const currentChat = useChatStore((store) => store.state.currentChat);
-    const currentChatMessages = useChatStore((store) => store.state.currentChatMessages);
-    const setCurrentChatMessages = useChatStore(store => store.setCurrentChatMessages);
-    const addNewMessageToList = useChatStore(store => store.addNewMessageToList);
-    const setCurrentChat = useChatStore(store => store.setCurrentChat);
-    const updateChatList = useChatStore(store => store.updateChatList);
+    const { 
+        setCurrentChatMessages,
+        addNewMessageToList,
+        setCurrentChat,
+        updateChatList
+    } = useChatStore.getState();
     const socket = useSocket();
-    const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const messagesWrapperRef = useRef<HTMLDivElement>(null);
     const [typingUsers, setTypingUsers] = useState<Record<string, any>[]>([]);
     const typingTimers = useRef<{ [key: string]: any }>({});
 
     useEffect(() => {
         if (!socket) return;
+
+        setTypingUsers([]);
+        Object.values(typingTimers.current).forEach(timer => clearTimeout(timer));
+        typingTimers.current = {};
+
+        socket.emit('get_messages', [currentChat._id]);
 
         const getMessages = ({ messages, errors }: { messages: any[], errors: string[] }) => {
             setCurrentChatMessages(messages);
@@ -30,20 +36,30 @@ export default function ChatMessages() {
                 messagesWrapperRef.current.scrollTop = messagesWrapperRef.current.scrollHeight;
             });
         }
-        socket.emit('get_messages', [currentChat._id]);
         socket.on('get_messages', getMessages);
 
         const newIncomingMessage = ({ message, errors }: { message: Record<string, any>, errors: string[] }) => {
+            // если писать человеку, с которым еще нет чата
             if (!currentChat._id && message.conversationId) {
                 setCurrentChat({ ...currentChat, _id: message.conversationId });
+            }
+            
+            if (currentChat._id && String(message.conversationId) !== String(currentChat._id)) {
+                // тут сделать логику с индикаторами непрочитанных сообщений
+				return;
+			}
+
+            addNewMessageToList(message);
+            updateChatList(message);
+
+            setTypingUsers(prev => prev.filter(typingUser => typingUser.id !== message.senderId));
+            if (typingTimers.current[message.senderId]) {
+                clearTimeout(typingTimers.current[message.senderId]);
             }
 
             if (!messagesWrapperRef.current) return;
             const { scrollTop, scrollHeight, clientHeight } = messagesWrapperRef.current;
             const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-            
-            addNewMessageToList(message);
-            updateChatList(message);
 
             if (isAtBottom) {
                 requestAnimationFrame(() => {
@@ -59,6 +75,9 @@ export default function ChatMessages() {
 
         const userTyping = (user: Record<string, any>) => {
             if (user.id == currentUser.id) return;
+
+            let participant = useChatStore.getState().state.currentChat.participants.find((id: number) => Number(id) === Number(user.id));
+            if (!participant) return;
 
             setTypingUsers(prev => {
                 const exists = prev.find(typingUser => typingUser.id === user.id);
@@ -89,10 +108,23 @@ export default function ChatMessages() {
         }
         socket.on('user_typing', userTyping);
 
+        const messageUpdated = ({ updatedMessage, errors }: { updatedMessage: Record<string, any>, errors: string[] }) => {
+            if (updatedMessage.conversationId != currentChat._id) return;
+
+            const store = useChatStore.getState();
+            const newMessagesList = store.state.currentChatMessages.map(message => 
+                message._id === updatedMessage._id ? updatedMessage : message
+            );
+            
+            store.setCurrentChatMessages(newMessagesList);
+        }
+        socket.on('message_updated', messageUpdated);
+
         return () => {
             socket.off('get_messages', getMessages);
             socket.off('new_incoming_message', newIncomingMessage);
             socket.off('user_typing', userTyping);
+            socket.off('message_updated', messageUpdated);
         };
     }, [socket, currentChat._id]);
 
@@ -100,8 +132,8 @@ export default function ChatMessages() {
         <div className="chat-messages" ref={messagesWrapperRef}>
             {
                 currentChat.type === 'direct'
-                    ?   directChat(currentChatMessages, currentChat, currentUser, defaultChatImg)
-                    :   groupChat()
+                    ?   <DirectChat/>
+                    :   <GroupChat/>
             }
             {
                 typingUsers.length === 1
@@ -140,13 +172,54 @@ export default function ChatMessages() {
     );
 }
 
-function directChat(currentChatMessages: Array<any>, currentChat: Record<string, any>, currentUser: Record<string, any>, defaultChatImg: string) {
+function DirectChat() {
+    const currentChatMessages = useChatStore((store) => store.state.currentChatMessages);
+    const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
+    const currentUser = useUserStore((state) => state.state);
+    const currentChat = useChatStore((store) => store.state.currentChat);
+    const socket = useSocket();
+    const [editingMessage, setEditingMessage] = useState<Record<string, any>>({
+        id: '',
+        text: '',
+        isEditing: false
+    });
+
     if (!currentChatMessages.length) {
         return (
             <div className='no-messages-wrapper'>
                 <div className='no-messages-text'>There are no messages yet</div>
             </div>
         );
+    }
+
+    const updateMessageOnEnter = (e: React.KeyboardEvent, message: Record<string, any>) => {
+        if (e.code === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+            e.preventDefault();
+            
+            socket?.emit('update_message', {
+                ...message,
+                text: editingMessage.text
+            });
+
+            setEditingMessage({
+                id: '',
+                text: '',
+                isEditing: false
+            });
+        }
+    }
+
+    const updateMessage = (message: Record<string, any>) => {
+        socket?.emit('update_message', {
+            ...message,
+            text: editingMessage.text
+        });
+
+        setEditingMessage({
+            id: '',
+            text: '',
+            isEditing: false
+        });
     }
     
     return (
@@ -170,7 +243,32 @@ function directChat(currentChatMessages: Array<any>, currentChat: Record<string,
                             }
                         >
                             <div>
-                                <div>{message.text}</div>
+                                {
+                                    editingMessage.isEditing && editingMessage.id == message._id
+                                        ?   <input
+                                                type="text"
+                                                className='message-editing'
+                                                value={editingMessage.text}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingMessage((prev: Record<string, any>) => ({
+                                                        ...prev,
+                                                        text: e.target.value
+                                                    }))
+                                                }
+                                                onBlur={() => updateMessage(message)}
+                                                onKeyUp={(e) => updateMessageOnEnter(e, message)}
+                                                autoFocus
+                                            />
+                                        :   <div
+                                                onClick={() => setEditingMessage({
+                                                        id: message._id,
+                                                        text: message.text,
+                                                        isEditing: true
+                                                    })
+                                                }
+                                            >
+                                                {message.text}
+                                            </div>
+                                }
                                 <div className='message-info'>
                                     {
                                         message.updatedAt === message.createdAt
@@ -228,7 +326,7 @@ function directChat(currentChatMessages: Array<any>, currentChat: Record<string,
     )
 }
 
-function groupChat() {
+function GroupChat() {
     return (
         <></>
     )

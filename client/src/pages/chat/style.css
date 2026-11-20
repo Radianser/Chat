@@ -239,6 +239,10 @@
     width: 18px;
 }
 
+.message-editing {
+    width: -webkit-fill-available;
+}
+
 .no-messages-wrapper {
     height: 100%;
     display: flex;

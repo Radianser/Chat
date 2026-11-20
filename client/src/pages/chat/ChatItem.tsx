@@ -25,14 +25,17 @@ export default function ChatItem({ chat }:any) {
         const setUserOnlineIndicator = (user: Record<string, any>) => {
             console.log('setUserOnlineStatus: ', user);
 
+            let isCurrentParticipant = chat.participants.find((id: number) => id == user.userId);
             if (
                 chat.type == 'direct' &&
-                user.isOnline
+                user.isOnline &&
+                isCurrentParticipant
             ) {
                 setOnlineIndicator(() => true);
             } else if (
                 chat.type == 'direct' &&
-                !user.isOnline
+                !user.isOnline &&
+                isCurrentParticipant
             ) {
                 setOnlineIndicator(() => false);
             }
@@ -47,7 +50,7 @@ export default function ChatItem({ chat }:any) {
         return () => {
             socket.off('user_status_received', setUserOnlineIndicator)
         }
-    }, [socket, chat]);
+    }, [socket, chat._id]);
     
     // let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
     let chatImg: string = '';
@@ -86,7 +89,7 @@ export default function ChatItem({ chat }:any) {
         if (String(currentChat._id) === String(chat._id) || !socket) return;
         
         setCurrentChat(chat);
-        socket.emit('join_chat', chat._id);
+        // socket.emit('join_chat', chat._id);
 
         if (ergonomics.windowWidth < Number(import.meta.env.VITE_MOBILE_DEVICE_WIDTH)) {
             setErgonomics(prev => ({

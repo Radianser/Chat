@@ -120,24 +120,45 @@ export default class ChatController {
     }
 
     async saveMessage(message) {
-        let chatId = message.chatId;
+        let conversationId = message.conversationId;
         let savedMessage = null;
         let errors = [];
 
         try {
-            if (!chatId) {
-                chatId = await (new Chat).createChat(message);
-            } else {
-                await (new Chat).updateChat(message);
+            if (!conversationId) {
+                conversationId = await (new Chat).createChat(message);
             }
 
-            savedMessage = await (new Chat).saveMessage({ ...message, chatId });
+            savedMessage = await (new Chat).saveMessage({ ...message, conversationId });
+            await (new Chat).updateChat(savedMessage);
         } catch (error) {
             errors = [error.message];
         }
 
         return {
             savedMessage,
+            errors
+        }
+    }
+
+    async updateMessage(message) {
+        let updatedMessage = null;
+        let errors = [];
+
+        try {
+            const ChatModel = new Chat();
+            updatedMessage = await ChatModel.updateMessage(message);
+            let conversation = await ChatModel.getChatById(message.conversationId);
+            
+            if (conversation.lastMessageId == message._id) {
+                await ChatModel.updateChat(message);
+            }
+        } catch (error) {
+            errors = [error.message];
+        }
+
+        return {
+            updatedMessage,
             errors
         }
     }

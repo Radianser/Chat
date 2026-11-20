@@ -12,6 +12,7 @@ export default class Chat {
                     chatImg: '',
                     chatUsers: message.chatUsers,
                     lastMessage: message.text,
+                    lastMessageId: message._id,
                     lastMessageSender: message.senderId,
                     lastMessageStatus: 'sent',
                     lastMessageCreatedAt: new Date(),
@@ -28,10 +29,11 @@ export default class Chat {
     async updateChat(message) {
         try {
             await db.mongo.collection('conversations').updateOne(
-                { _id: new ObjectId(message.chatId) },
+                { _id: new ObjectId(message.conversationId) },
                 {
                     $set: {
                         lastMessage: message.text,
+                        lastMessageId: message._id,
                         lastMessageSender: message.senderId,
                         lastMessageStatus: 'sent',
                         lastMessageCreatedAt: new Date(),
@@ -41,6 +43,15 @@ export default class Chat {
             );
         } catch (error) {
             console.error('❌ Ошибка при обновлении чата:', error);
+            throw error;
+        }
+    }
+
+    async getChatById(id) {
+        try {
+            return await db.mongo.collection('conversations').findOne({ _id: new ObjectId(id) });
+        } catch (error) {
+            console.error('❌ Ошибка при поиске чатов пользователя:', error);
             throw error;
         }
     }
@@ -62,7 +73,7 @@ export default class Chat {
         try {
             return await db.mongo.collection('messages')
                 .find({ conversationId: new ObjectId(chatId) })
-                .sort({ updatedAt: 1 })
+                .sort({ createdAt: 1 })
                 .toArray();
         } catch (error) {
             console.error('❌ Ошибка при поиске сообщений чата:', error);
@@ -86,7 +97,7 @@ export default class Chat {
         try {
             const newMessage = {
                 _id: new ObjectId(),
-                conversationId: new ObjectId(message.chatId),
+                conversationId: new ObjectId(message.conversationId),
                 senderId: message.senderId,
                 type: message.type,
                 text: message.text,
@@ -97,6 +108,38 @@ export default class Chat {
             await db.mongo.collection('messages').insertOne(newMessage);
 
             return newMessage;
+        } catch (error) {
+            console.error('❌ Ошибка при сохранинии сообщения:', error);
+            throw error;
+        }
+    }
+
+    async updateMessage(message) {
+        try {
+            const updatedMessage = {
+                _id: new ObjectId(message._id),
+                conversationId: new ObjectId(message.conversationId),
+                senderId: message.senderId,
+                type: message.type,
+                text: message.text,
+                status: message.status,
+                createdAt: message.createdAt,
+                updatedAt: new Date()
+            };
+
+            await db.mongo.collection('messages').updateOne(
+                { _id: new ObjectId(message._id) },
+                {
+                    $set: {
+                        type: message.type,
+                        text: message.text,
+                        status: message.status,
+                        updatedAt: new Date()
+                    }
+                }
+            );
+
+            return updatedMessage;
         } catch (error) {
             console.error('❌ Ошибка при сохранинии сообщения:', error);
             throw error;

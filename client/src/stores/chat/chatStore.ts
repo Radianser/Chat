@@ -121,24 +121,18 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		console.log('new client incoming message: ', message);
 
 		set((store) => {
-			// 1. Проверяем, что сообщение относится к текущему чату
-			if (String(message.conversationId) !== String(store.state.currentChat._id)) {
-				return store;
-			}
-
-			// 2. Проверяем на дубликат
 			const exists = store.state.currentChatMessages.some(
 				(msg: any) => String(msg._id) === String(message._id)
 			);
 			if (exists) return store;
 
-			// 3. Добавляем в конец
 			return {
 				state: {
 					...store.state,
 					currentChat: {
 						...store.state.currentChat,
 						lastMessage: message.text,
+						lastMessageId: message._id,
 						lastMessageSender: message.senderId,
 						lastMessageStatus: message.status,
 						lastMessageCreatedAt: message.createdAt,
@@ -152,15 +146,14 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		});
 	},
 
-	updateChatList(message: Record<string, any>) {
+	updateChatLastMessage(message: Record<string, any>) {
 		set((store) => {
-			// 1. Находим чат в списке по conversationId
 			const updatedChats = store.state.chatList.map((chat: any) => {
 				if (String(chat._id) === String(message.conversationId)) {
-					// 2. Обновляем превью
 					return {
 						...chat,
 						lastMessage: message.text,
+						lastMessageId: message._id,
 						lastMessageSender: message.senderId,
 						lastMessageStatus: message.status,
 						lastMessageCreatedAt: message.createdAt
@@ -169,7 +162,31 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 				return chat;
 			});
 
-			// 3. Сортируем по дате последнего сообщения (сначала новые)
+			return {
+				state: {
+					...store.state,
+					chatList: updatedChats
+				}
+			};
+		});
+	},
+
+	updateChatList(message: Record<string, any>) {
+		set((store) => {
+			const updatedChats = store.state.chatList.map((chat: any) => {
+				if (String(chat._id) === String(message.conversationId)) {
+					return {
+						...chat,
+						lastMessage: message.text,
+						lastMessageId: message._id,
+						lastMessageSender: message.senderId,
+						lastMessageStatus: message.status,
+						lastMessageCreatedAt: message.createdAt
+					};
+				}
+				return chat;
+			});
+
 			updatedChats.sort((a: any, b: any) => {
 				const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
 				const dateB = new Date(b.lastMessageCreatedAt || 0).getTime();

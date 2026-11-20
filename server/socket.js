@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import ChatController from '#controllers/ChatController.js';
 import User from '#models/User.js';
 import Chat from '#models/Chat.js';
+// import { db } from "#config/db_conn.js";
 
 let io = null;
 
@@ -27,6 +28,17 @@ export const initSocket = async (server) => {
             socket.userId = String(userId);
             onlineUsers.set(socket.userId, socket.id);
             socket.join(`user_${socket.userId}`);
+
+            try {
+                const { chats, errors } = await (new ChatController).getChatList(userId);
+
+                chats.forEach(chat => {
+                    socket.join(chat._id.toString());
+                    console.log(`Сокет ${socket.id} подписан на комнату чата ${chat._id}`);
+                });
+            } catch (error) {
+                console.error('Ошибка при подписке на чаты:', error);
+            }
 
             await emitUserNewStatus(socket, {
                 userId: socket.userId,
@@ -71,24 +83,25 @@ export const initSocket = async (server) => {
             try {
                 const { savedMessage, errors } = await (new ChatController).saveMessage(newMessage);
 
-                console.log('savedMessage: ', savedMessage);
-                console.log('newMessage: ', newMessage);
-                console.log('savedMessage.conversationId.toString(): ', savedMessage.conversationId.toString());
-                
-                if (!newMessage.chatId) {
+                if (!newMessage.conversationId) {
                     socket.join(savedMessage.conversationId.toString());
                 }
                 
                 io.to(savedMessage.conversationId.toString()).emit('new_incoming_message', { message: savedMessage, errors });
-
-                // ⚠️ ВАЖНО: Если ты уже отправил 'get_new_sent_message' отправителю,
-                // то второе событие 'new_incoming_message' тоже придет отправителю (потому что он в комнате).
-                // Чтобы избежать дубля на клиенте, отправитель должен игнорировать 'new_incoming_message',
-                // если senderId совпадает с его собственным ID.
-
             } catch (error) {
                 console.error('Ошибка при сохранении сообщения:', error);
-                // socket.emit('send_message_error', { message: 'Не удалось отправить сообщение' });
+            }
+        });
+
+        socket.on('update_message', async (message) => {
+            console.log('📥 update_message на сервере:', message);
+            
+            try {
+                const { updatedMessage, errors } = await (new ChatController).updateMessage(message);
+
+                io.to(message.conversationId).emit('message_updated', { updatedMessage, errors });
+            } catch (error) {
+                console.error('Ошибка при редактировании сообщения:', error);
             }
         });
 
