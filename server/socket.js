@@ -2,7 +2,8 @@ import { Server } from 'socket.io';
 import ChatController from '#controllers/ChatController.js';
 import User from '#models/User.js';
 import Chat from '#models/Chat.js';
-// import { db } from "#config/db_conn.js";
+import { db } from "#config/db_conn.js";
+import { ObjectId } from "mongodb";
 
 let io = null;
 
@@ -102,6 +103,46 @@ export const initSocket = async (server) => {
                 io.to(message.conversationId).emit('message_updated', { updatedMessage, errors });
             } catch (error) {
                 console.error('Ошибка при редактировании сообщения:', error);
+            }
+        });
+
+        socket.on('mark_messages_as_read', async ({ chatId, lastReadMessageId, lastReadMessageCreatedAt }) => {
+            // console.log('📥 mark_messages_as_read на сервере:', { chatId, lastReadMessageId, lastReadMessageCreatedAt });
+
+            const userId = socket.userId; // тот, кто прочитал
+            
+            try {
+                // обновляем все сообщения в чате, где senderId != userId и status != 'read'
+                // обновляем те, что были созданы до lastReadMessageId
+                const conversation = await db.mongo.collection('conversations').findOne(
+                    { _id: new ObjectId(chatId) }
+                );
+                if (!userId || !conversation) return;
+
+                await db.mongo.collection('messages').updateMany(
+                    { 
+                        conversationId: new ObjectId(chatId),
+                        senderId: { $ne: Number(userId) }, // Not Equal, $eq Equal
+                        status: { $ne: 'read' }, // Not Equal
+                        createdAt: { $lte: new Date(lastReadMessageCreatedAt) } // Less Than or Equal
+                    },
+                    { $set: { status: 'read' } }
+                );
+
+                if (String(conversation.lastMessageId) === String(lastReadMessageId)) {
+                    await db.mongo.collection('conversations').updateOne(
+                        {  _id: new ObjectId(chatId) },
+                        { $set: { lastMessageStatus: 'read' } }
+                    );
+                }
+                
+                io.to(chatId).emit('messages_read', {
+                    chatId: chatId,
+                    readerId: userId,
+                    lastReadMessageId: lastReadMessageId
+                });
+            } catch (error) {
+                console.error('Ошибка при отметке прочтения:', error);
             }
         });
 

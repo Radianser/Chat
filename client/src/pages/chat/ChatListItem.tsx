@@ -7,7 +7,7 @@ import { useSocket } from '@socket/SocketContext';
 import { useState, useEffect, useContext } from 'react';
 import { MobileContext } from '@src/context/mobileContext';
 
-export default function ChatItem({ chat }:any) {
+export default function ChatListItem({ chat }:any) {
     const currentUser = useUserStore((state) => state.state);
     const currentChat = useChatStore(store => store.state.currentChat);
     const setCurrentChat = useChatStore(store => store.setCurrentChat);
@@ -23,7 +23,7 @@ export default function ChatItem({ chat }:any) {
         if (!socket) return;
 
         const setUserOnlineIndicator = (user: Record<string, any>) => {
-            console.log('setUserOnlineStatus: ', user);
+            // console.log('setUserOnlineStatus: ', user); 8 раз выводится - разобраться
 
             let isCurrentParticipant = chat.participants.find((id: number) => id == user.userId);
             if (

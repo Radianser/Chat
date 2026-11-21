@@ -171,6 +171,15 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		});
 	},
 
+	updateChatLastMessageStatus(chats: Array<any>) {
+		set(store => ({
+			state: {
+				...store.state,
+				chatList: chats
+			}
+		}));
+	},
+
 	updateChatList(message: Record<string, any>) {
 		set((store) => {
 			const updatedChats = store.state.chatList.map((chat: any) => {

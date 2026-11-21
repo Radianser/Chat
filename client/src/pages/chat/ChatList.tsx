@@ -1,21 +1,29 @@
 import { useEffect } from "react";
-import ChatSearch from '@pages/chat/ChatSearch.tsx';
-import ChatItem from '@pages/chat/ChatItem.tsx';
-import { useChatStore } from '@src/stores/chat/chatStore.ts';
+import ChatSearch from '@pages/chat/ChatSearch';
+import ChatListItem from '@pages/chat/ChatListItem';
+import { useChatStore } from '@src/stores/chat/chatStore';
 import { useUserStore } from '@src/stores/user/userStore';
 import { useSocket } from '@socket/SocketContext';
 import './style.css';
 
 export default function ChatList() {
-    const { setChatList, clearAllChats, updateChatList, updateChatLastMessage } = useChatStore.getState();
-    const chatStore = useChatStore((store) => store.state);
-    const userState = useUserStore((store) => store.state);
+    const { 
+        setChatList,
+        clearAllChats,
+        updateChatList,
+        updateChatLastMessage,
+        updateChatLastMessageStatus
+    } = useChatStore.getState();
+    const chatList = useChatStore((store) => store.state.chatList);
+    const searchedChats = useChatStore((store) => store.state.searchedChats);
+    const searchErrors = useChatStore((store) => store.state.searchErrors);
+    const currentUser = useUserStore((store) => store.state);
     const socket = useSocket();
 
     useEffect(() => {
-        if (!socket || !userState.id) return;
+        if (!socket || !currentUser.id) return;
 
-        socket.emit('get_chat_list', [userState.id]);
+        socket.emit('get_chat_list', [currentUser.id]);
 
         const getChatList = ({ chats, errors }: { chats: any[], errors: string[] }) => {
             setChatList(chats);
@@ -42,19 +50,49 @@ export default function ChatList() {
             socket.off('message_updated', messageUpdated);
             clearAllChats();
         };
-    }, [socket, userState.id]);
+    }, [socket, currentUser.id]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const messagesRead = ({ chatId, readerId, lastReadMessageId }: { chatId: string, readerId: number, lastReadMessageId: string }) => {
+            
+            console.log('chatList: ', { chatId, readerId, lastReadMessageId });
+
+            const newChatList = useChatStore.getState().state.chatList.map(chat => {
+                if (
+                    String(chat._id) === String(chatId) &&
+                    String(chat.lastMessageId) === String(lastReadMessageId)
+                ) {
+                    return {
+                        ...chat,
+                        lastMessageStatus: 'read'
+                    }
+                } else {
+                    return chat;
+                }
+            });
+
+            updateChatLastMessageStatus(newChatList);
+        }
+        socket.on('messages_read', messagesRead);
+
+        return () => {
+            socket.off('messages_read', messagesRead);
+        }
+    }, [socket]);
 
     return (
         <div className="chat-list-wrapper">
             <ChatSearch/>
             {
-                chatStore.chatList.length > 0 && !chatStore.searchedChats.length && !chatStore.searchErrors.length
+                chatList.length > 0 && !searchedChats.length && !searchErrors.length
                     ?   <div className="chat-list">
-                            {chatStore.chatList.map(chat => <ChatItem chat={chat} key={chat._id} />)}
+                            {chatList.map(chat => <ChatListItem chat={chat} key={chat._id} />)}
                         </div>
-                    :   chatStore.searchedChats.length > 0 && !chatStore.searchErrors.length
+                    :   searchedChats.length > 0 && !searchErrors.length
                             ?   <div className="chat-list">
-                                    {chatStore.searchedChats.map(chat => <ChatItem chat={chat} key={chat._id} />)}
+                                    {searchedChats.map(chat => <ChatListItem chat={chat} key={chat._id} />)}
                                 </div>
                             :   <div className="chat-list empty">
                                     No chats found

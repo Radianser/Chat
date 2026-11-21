@@ -22,7 +22,7 @@ export default function ChatUserInfo() {
         console.log('companionsId: ', companionsId);
         
         const setUserOnlineStatus = (user: Record<string, any>) => {
-            console.log('setUserOnlineStatus: ', user);
+            // console.log('setUserOnlineStatus: ', user); 8 раз выводится - разобраться
 
             if (
                 chat.type == 'direct' &&

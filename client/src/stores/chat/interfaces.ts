@@ -13,6 +13,7 @@ export interface iChatStore {
 	setCurrentChatMessages: (messages:Array<any>) => void,
 	addNewMessageToList: (message:Record<string, any>) => void,
 	updateChatLastMessage: (message: Record<string, any>) => void,
+	updateChatLastMessageStatus: (chats: Array<any>) => void,
 	updateChatList: (message:Record<string, any>) => void,
 	setChatList: (chats: Array<any>) => void,
 	clearCurrentChat: () => void,
