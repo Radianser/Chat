@@ -2,8 +2,8 @@ import { Server } from 'socket.io';
 import ChatController from '#controllers/ChatController.js';
 import User from '#models/User.js';
 import Chat from '#models/Chat.js';
-import { db } from "#config/db_conn.js";
-import { ObjectId } from "mongodb";
+// import { db } from "#config/db_conn.js";
+// import { ObjectId } from "mongodb";
 
 let io = null;
 
@@ -82,10 +82,15 @@ export const initSocket = async (server) => {
             // console.log('📥 send_new_message на сервере:', newMessage);
             
             try {
-                const { savedMessage, errors } = await (new ChatController).saveMessage(newMessage);
+                const { conversation, savedMessage, errors } = await (new ChatController).saveMessage(newMessage);
 
                 if (!newMessage.conversationId) {
                     socket.join(savedMessage.conversationId.toString());
+
+                    const participantIds = newMessage.participants.filter(participantId => participantId != newMessage.senderId);
+                    participantIds.forEach(id => {
+                        io.to(`user_${id}`).emit('new_incoming_chat', { chat: conversation, errors });
+                    });
                 }
                 
                 io.to(savedMessage.conversationId.toString()).emit('new_incoming_message', { message: savedMessage, errors });
@@ -108,41 +113,34 @@ export const initSocket = async (server) => {
 
         socket.on('mark_messages_as_read', async ({ chatId, lastReadMessageId, lastReadMessageCreatedAt }) => {
             // console.log('📥 mark_messages_as_read на сервере:', { chatId, lastReadMessageId, lastReadMessageCreatedAt });
-
-            const userId = socket.userId; // тот, кто прочитал
             
             try {
                 // обновляем все сообщения в чате, где senderId != userId и status != 'read'
                 // обновляем те, что были созданы до lastReadMessageId
-                const conversation = await db.mongo.collection('conversations').findOne(
-                    { _id: new ObjectId(chatId) }
-                );
+                const userId = socket.userId; // тот, кто прочитал
+                const conversation = await (new Chat).getChatById(chatId);
                 if (!userId || !conversation) return;
 
-                await db.mongo.collection('messages').updateMany(
-                    { 
-                        conversationId: new ObjectId(chatId),
-                        senderId: { $ne: Number(userId) }, // Not Equal, $eq Equal
-                        status: { $ne: 'read' }, // Not Equal
-                        createdAt: { $lte: new Date(lastReadMessageCreatedAt) } // Less Than or Equal
-                    },
-                    { $set: { status: 'read' } }
+                await (new Chat).updateMessageStatuses(
+                    chatId,
+                    userId,
+                    lastReadMessageCreatedAt,
+                    String(conversation.lastMessageId) === String(lastReadMessageId)
                 );
-
-                if (String(conversation.lastMessageId) === String(lastReadMessageId)) {
-                    await db.mongo.collection('conversations').updateOne(
-                        {  _id: new ObjectId(chatId) },
-                        { $set: { lastMessageStatus: 'read' } }
-                    );
-                }
                 
                 io.to(chatId).emit('messages_read', {
                     chatId: chatId,
-                    readerId: userId,
-                    lastReadMessageId: lastReadMessageId
+                    lastReadMessageId: lastReadMessageId,
+                    errors: []
                 });
             } catch (error) {
                 console.error('Ошибка при отметке прочтения:', error);
+
+                io.to(chatId).emit('messages_read', {
+                    chatId: null,
+                    lastReadMessageId: null,
+                    errors: [error]
+                });
             }
         });
 

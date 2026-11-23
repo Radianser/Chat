@@ -209,5 +209,24 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 				}
 			};
 		});
+	},
+
+	addNewChat(chat: Record<string, any>) {
+		set(store => {
+			const newChatList = [...store.state.chatList, chat];
+
+			newChatList.sort((a: any, b: any) => {
+				const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
+				const dateB = new Date(b.lastMessageCreatedAt || 0).getTime();
+				return dateB - dateA;
+			});
+
+			return {
+				state: {
+					...store.state,
+					chatList: newChatList
+				}
+			}
+		});
 	}
 }))

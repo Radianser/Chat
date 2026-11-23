@@ -7,17 +7,10 @@ import { useSocket } from '@socket/SocketContext';
 import './style.css';
 
 export default function ChatList() {
-    const { 
-        setChatList,
-        clearAllChats,
-        updateChatList,
-        updateChatLastMessage,
-        updateChatLastMessageStatus
-    } = useChatStore.getState();
+    const currentUser = useUserStore((store) => store.state);
     const chatList = useChatStore((store) => store.state.chatList);
     const searchedChats = useChatStore((store) => store.state.searchedChats);
     const searchErrors = useChatStore((store) => store.state.searchErrors);
-    const currentUser = useUserStore((store) => store.state);
     const socket = useSocket();
 
     useEffect(() => {
@@ -26,61 +19,69 @@ export default function ChatList() {
         socket.emit('get_chat_list', [currentUser.id]);
 
         const getChatList = ({ chats, errors }: { chats: any[], errors: string[] }) => {
-            setChatList(chats);
+            if (errors.length) {
+                console.log('errors: ', errors);
+                return;
+            }
+            
+            useChatStore.getState().setChatList(chats);
         }
-        socket.on('get_chat_list', getChatList);
 
-        const newIncomingMessage = ({ message, errors }: { message: Record<string, any>, errors: string[] }) => {
-            updateChatList(message);
+        const newIncomingChat = ({ chat, errors }: { chat: Record<string, any>, errors: string[] }) => {
+            if (errors.length) {
+                console.log('errors: ', errors);
+                return;
+            }
+            
+            useChatStore.getState().addNewChat(chat);
         }
-        socket.on('new_incoming_message', newIncomingMessage);
 
         const messageUpdated = ({ updatedMessage, errors }: { updatedMessage: Record<string, any>, errors: string[] }) => {
+            if (errors.length) {
+                console.log('errors: ', errors);
+                return;
+            }
+            
             const findChat = useChatStore.getState().state.chatList.find(chat => String(chat._id) === String(updatedMessage.conversationId));
             
             if (findChat && findChat.lastMessageId === updatedMessage._id) {
-                updateChatLastMessage(updatedMessage);
+                useChatStore.getState().updateChatLastMessage(updatedMessage);
             }
         }
-        socket.on('message_updated', messageUpdated);
 
-        return () => {
-            socket.off('get_chat_list', getChatList);
-            socket.off('new_incoming_message', newIncomingMessage);
-            socket.off('message_updated', messageUpdated);
-            clearAllChats();
-        };
-    }, [socket, currentUser.id]);
-
-    useEffect(() => {
-        if (!socket) return;
-
-        const messagesRead = ({ chatId, readerId, lastReadMessageId }: { chatId: string, readerId: number, lastReadMessageId: string }) => {
+        const messagesRead = ({ chatId, lastReadMessageId, errors }: { chatId: string, lastReadMessageId: string, errors: string[] }) => {
+            if (errors.length) {
+                console.log('errors: ', errors);
+                return;
+            }
             
-            console.log('chatList: ', { chatId, readerId, lastReadMessageId });
-
             const newChatList = useChatStore.getState().state.chatList.map(chat => {
                 if (
                     String(chat._id) === String(chatId) &&
                     String(chat.lastMessageId) === String(lastReadMessageId)
                 ) {
-                    return {
-                        ...chat,
-                        lastMessageStatus: 'read'
-                    }
+                    return { ...chat, lastMessageStatus: 'read' }
                 } else {
                     return chat;
                 }
             });
 
-            updateChatLastMessageStatus(newChatList);
+            useChatStore.getState().updateChatLastMessageStatus(newChatList);
         }
+
+        socket.on('get_chat_list', getChatList);
+        socket.on('new_incoming_chat', newIncomingChat);
+        socket.on('message_updated', messageUpdated);
         socket.on('messages_read', messagesRead);
 
         return () => {
+            socket.off('get_chat_list', getChatList);
+            socket.off('new_incoming_chat', newIncomingChat);
+            socket.off('message_updated', messageUpdated);
             socket.off('messages_read', messagesRead);
-        }
-    }, [socket]);
+            useChatStore.getState().clearAllChats();
+        };
+    }, [socket, currentUser.id]);
 
     return (
         <div className="chat-list-wrapper">

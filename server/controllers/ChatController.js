@@ -43,6 +43,7 @@ export default class ChatController {
                         type: 'direct',
                         chatTitle: user.name,
                         chatImg: user.img,
+                        participants: [request.session.user.id, user.id],
                         chatUsers: {
                             [request.session.user.id]: { name: request.session.user.name, img: request.session.user.img },
                             [user.id]: { name: user.name, img: user.img }
@@ -120,13 +121,14 @@ export default class ChatController {
     }
 
     async saveMessage(message) {
+        let conversation = null;
         let conversationId = message.conversationId;
         let savedMessage = null;
         let errors = [];
 
         try {
             if (!conversationId) {
-                conversationId = await (new Chat).createChat(message);
+                ({ conversation, conversationId } = await (new Chat).createChat(message));
             }
 
             savedMessage = await (new Chat).saveMessage({ ...message, conversationId });
@@ -136,6 +138,7 @@ export default class ChatController {
         }
 
         return {
+            conversation,
             savedMessage,
             errors
         }

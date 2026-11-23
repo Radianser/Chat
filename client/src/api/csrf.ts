@@ -5,7 +5,9 @@ let csrfPromise: Promise<string> | null = null;
 
 export const getCsrfToken = async (error: boolean = false): Promise<string> => {
 
-    console.log('error: ', error);
+    if (error) {
+        console.warn('getCsrfToken error');
+    }
 
     // Если токен уже есть, возвращаем его
     if (csrfToken && !error) return csrfToken;

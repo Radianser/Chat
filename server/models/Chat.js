@@ -4,22 +4,28 @@ import { ObjectId } from "mongodb";
 export default class Chat {
     async createChat(message) {
         try {
-            const result = await db.mongo.collection('conversations')
-                .insertOne({
-                    type: 'direct',
-                    participants: message.participants,
-                    chatTitle: '',
-                    chatImg: '',
-                    chatUsers: message.chatUsers,
-                    lastMessage: message.text,
-                    lastMessageId: message._id,
-                    lastMessageSender: message.senderId,
-                    lastMessageStatus: 'sent',
-                    lastMessageCreatedAt: new Date(),
-                    isPrivate: true,
-                    createdAt: new Date()
-                });
-            return result.insertedId;
+            const newChat = {
+                type: 'direct',
+                participants: message.participants,
+                chatTitle: '',
+                chatImg: '',
+                chatUsers: message.chatUsers,
+                lastMessage: message.text,
+                lastMessageId: message._id,
+                lastMessageSender: message.senderId,
+                lastMessageStatus: 'sent',
+                lastMessageCreatedAt: new Date(),
+                isPrivate: true,
+                createdAt: new Date()
+            };
+
+            const result = await db.mongo.collection('conversations').insertOne(newChat);
+            newChat._id = result.insertedId;
+
+            return {
+                conversation: newChat,
+                conversationId: result.insertedId
+            };
         } catch (error) {
             console.error('❌ Ошибка при создании чата:', error);
             throw error;
@@ -141,7 +147,31 @@ export default class Chat {
 
             return updatedMessage;
         } catch (error) {
-            console.error('❌ Ошибка при сохранинии сообщения:', error);
+            console.error('❌ Ошибка при обновлении сообщения:', error);
+            throw error;
+        }
+    }
+
+    async updateMessageStatuses(chatId, userId, lastReadMessageCreatedAt, isMessageLast) {
+        try {
+            await db.mongo.collection('messages').updateMany(
+                { 
+                    conversationId: new ObjectId(chatId),
+                    senderId: { $ne: Number(userId) }, // Not Equal, $eq Equal
+                    status: { $ne: 'read' }, // Not Equal
+                    createdAt: { $lte: new Date(lastReadMessageCreatedAt) } // Less Than or Equal
+                },
+                { $set: { status: 'read' } }
+            );
+
+            if (!isMessageLast) return;
+
+            await db.mongo.collection('conversations').updateOne(
+                {  _id: new ObjectId(chatId) },
+                { $set: { lastMessageStatus: 'read' } }
+            );
+        } catch (error) {
+            console.error('❌ Ошибка при смене статусов сообщений:', error);
             throw error;
         }
     }
