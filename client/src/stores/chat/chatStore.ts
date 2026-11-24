@@ -12,7 +12,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		defaultChatImg: '/resources/1.png'
 	},
 
-	setChatList(chats) {
+	setChatList(chats: Record<string, any>[]) {
 		const updatedChats = chats.sort((a: any, b: any) => {
 			const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
 			const dateB = new Date(b.lastMessageCreatedAt || 0).getTime();
@@ -87,7 +87,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}
 	},
 
-	setCurrentChat(chat:Record<string, any>) {
+	setCurrentChat(chat: Record<string, any>) {
 		set(store => ({
 			state: {
 				...store.state,
@@ -106,7 +106,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
-	setCurrentChatMessages(messages:Array<any>) {
+	setCurrentChatMessages(messages: Record<string, any>[]) {
 		set(store => ({
 			state: {
 				...store.state,
@@ -117,9 +117,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		}));
 	},
 
-	addNewMessageToList(message: Record<string, any>) {
-		console.log('new client incoming message: ', message);
-
+	addNewMessageToCurrentChat(message: Record<string, any>) {
 		set((store) => {
 			const exists = store.state.currentChatMessages.some(
 				(msg: any) => String(msg._id) === String(message._id)
@@ -171,7 +169,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		});
 	},
 
-	updateChatLastMessageStatus(chats: Array<any>) {
+	updateChatLastMessageStatus(chats: Record<string, any>[]) {
 		set(store => ({
 			state: {
 				...store.state,
@@ -184,7 +182,7 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 		set((store) => {
 			const updatedChats = store.state.chatList.map((chat: any) => {
 				if (String(chat._id) === String(message.conversationId)) {
-					return {
+					let updatedChat = {
 						...chat,
 						lastMessage: message.text,
 						lastMessageId: message._id,
@@ -192,6 +190,12 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 						lastMessageStatus: message.status,
 						lastMessageCreatedAt: message.createdAt
 					};
+
+					if (String(chat._id) !== String(store.state.currentChat._id)) {
+						updatedChat.unreadCount += 1;
+					}
+
+					return updatedChat;
 				}
 				return chat;
 			});
@@ -213,7 +217,13 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 
 	addNewChat(chat: Record<string, any>) {
 		set(store => {
-			const newChatList = [...store.state.chatList, chat];
+			const newChatList = [
+				...store.state.chatList,
+				{
+					...chat,
+					unreadCount: 1
+				}
+			];
 
 			newChatList.sort((a: any, b: any) => {
 				const dateA = new Date(a.lastMessageCreatedAt || 0).getTime();
@@ -227,6 +237,28 @@ export const useChatStore = create<iChatStore>((set, get) => ({
 					chatList: newChatList
 				}
 			}
+		});
+	},
+
+	clearUnreadIndicator(chatId: string) {
+		set((store) => {
+			const updatedChats = store.state.chatList.map((chat: Record<string, any>) => {
+				if (String(chat._id) === String(chatId)) {
+					return {
+						...chat,
+						unreadCount: 0
+					};
+				}
+
+				return chat;
+			});
+
+			return {
+				state: {
+					...store.state,
+					chatList: updatedChats
+				}
+			};
 		});
 	}
 }))

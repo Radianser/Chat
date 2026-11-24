@@ -64,12 +64,53 @@ export default class Chat {
 
     async getChatList(userId) {
         try {
-            return await db.mongo.collection('conversations')
-                .find({ participants: userId })
-                .sort({ updatedAt: -1 })
-                .toArray();
+            return await db.mongo.collection('conversations').aggregate([
+                // 1. Находим все чаты пользователя
+                {
+                    $match: {
+                        participants: Number(userId)
+                    }
+                },
+                // 2. Присоединяем сообщения, которые не прочитаны и отправлены не мной
+                {
+                    $lookup: {
+                        from: 'messages',
+                        let: { chatId: '$_id' }, // Берем _id текущего чата
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ['$conversationId', '$$chatId'] }, // Сообщение из этого чата
+                                            { $ne: ['$senderId', Number(userId)] },   // Отправлено НЕ мной
+                                            { $eq: ['$status', 'sent'] }              // Еще не прочитано
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        as: 'unreadMessages'
+                    }
+                },
+                // 3. Добавляем поле unreadCount (длина массива unreadMessages)
+                {
+                    $addFields: {
+                        unreadCount: { $size: '$unreadMessages' }
+                    }
+                },
+                // 4. Убираем сам массив unreadMessages (он нам больше не нужен, только счетчик)
+                {
+                    $project: {
+                        unreadMessages: 0
+                    }
+                },
+                // 5. Сортируем по последнему сообщению
+                {
+                    $sort: { updatedAt: -1 }
+                }
+            ]).toArray();
         } catch (error) {
-            console.error('❌ Ошибка при поиске чатов пользователя:', error);
+            console.error('❌ Ошибка при получении чатов пользователя:', error);
             throw error;
         }
     }

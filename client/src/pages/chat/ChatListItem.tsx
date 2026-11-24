@@ -128,8 +128,17 @@ export default function ChatListItem({ chat }:any) {
                                 : ''
                         }
                     </div>
-                    <div className="chat-list-message-time">
-                        {formatMessageDate(chat.lastMessageCreatedAt)}
+                    <div className='chat-list-message-indicators'>
+                        <div className="chat-list-message-time">
+                            {formatMessageDate(chat.lastMessageCreatedAt)}
+                        </div>
+                        {
+                            chat.unreadCount
+                                ?   <div className="chat-list-message-unread-count">
+                                        {chat.unreadCount}
+                                    </div>
+                                :   ''
+                        }
                     </div>
                 </div>
             </div>

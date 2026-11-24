@@ -62,20 +62,19 @@ export default function ChatMessages() {
         const newIncomingMessage = ({ message }: { message: Record<string, any> }) => {
             const store = useChatStore.getState();
             
-            // Если это новый чат — обновляем currentChat
+            // если пишем человеку, с которым еще нет чата
             if (!store.state.currentChat._id && message.conversationId) {
                 store.setCurrentChat({ ...store.state.currentChat, _id: message.conversationId });
             }
             
-            // Если сообщение из другого чата — игнорируем
+            // если сообщение из другого чата — игнорируем
             if (store.state.currentChat._id && String(message.conversationId) !== String(store.state.currentChat._id)) {
                 return;
             }
 
-            store.addNewMessageToList(message);
-            store.updateChatList(message);
+            store.addNewMessageToCurrentChat(message);
 
-            // Очистка индикатора "печатает"
+            // очистка индикатора "печатает"
             setTypingUsers(prev => prev.filter(typingUser => typingUser.id !== message.senderId));
             if (typingTimers.current[message.senderId]) {
                 clearTimeout(typingTimers.current[message.senderId]);
@@ -150,7 +149,10 @@ export default function ChatMessages() {
         };
 
         const handleScroll = () => {
-            if (isAtBottom()) markMessageAsRead();
+            if (isAtBottom()) {
+                markMessageAsRead();
+                useChatStore.getState().clearUnreadIndicator(currentChat._id);
+            };
         };
 
         messagesWrapperRef.current?.addEventListener('scroll', handleScroll);
@@ -159,7 +161,8 @@ export default function ChatMessages() {
         if (messagesWrapperRef.current) {
             const { scrollHeight, clientHeight } = messagesWrapperRef.current;
             if (scrollHeight <= clientHeight) {
-                markMessageAsRead()
+                markMessageAsRead();
+                useChatStore.getState().clearUnreadIndicator(currentChat._id);
             };
         }
 
