@@ -38,12 +38,13 @@ export const getCsrfToken = async (forceRefresh = false): Promise<string> => {
     return csrfPromise;
 };
 
+// 2. Функция принудительного получения токена
 export const refreshCsrfToken = async (): Promise<string> => {
     csrfToken = null;
     return getCsrfToken(true);
 };
 
-// 2. Интерсептор запросов
+// 3. Интерсептор запросов
 axios.interceptors.request.use(async (config) => {
     const method = config.method?.toUpperCase() || 'GET';
     
@@ -56,7 +57,7 @@ axios.interceptors.request.use(async (config) => {
     return config;
 });
 
-// 3. Интерсептор ответов (с защитой от циклов)
+// 4. Интерсептор ответов (с защитой от циклов)
 axios.interceptors.response.use(
     (response) => response,
     async (error) => {

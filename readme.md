@@ -21,4 +21,5 @@ docker compose up -d # The -d flag enables background mode and returns control t
 npm --prefix server run migrate:all
 
 6. start the servers:<br>
-npm run start
+npm run start<br>
+npm run build
