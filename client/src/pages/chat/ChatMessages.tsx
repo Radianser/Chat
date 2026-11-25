@@ -32,11 +32,9 @@ export default function ChatMessages() {
         return scrollHeight - scrollTop - clientHeight < 50;
     };
 
-    // socket.emit get_messages
     useEffect(() => {
         if (!socket || !currentChat._id) return;
 
-        // Очистка при смене чата
         setTypingUsers([]);
         Object.values(typingTimers.current).forEach(clearTimeout);
         typingTimers.current = {};
@@ -55,7 +53,6 @@ export default function ChatMessages() {
         };
     }, [socket, currentChat._id]);
 
-    // socket.on
     useEffect(() => {
         if (!socket) return;
 
@@ -129,7 +126,6 @@ export default function ChatMessages() {
         };
     }, [socket, currentUser.id]);
 
-    // socket.emit mark_messages_as_read
     useEffect(() => {
         if (!socket || !currentChat._id) return;
 
@@ -157,7 +153,7 @@ export default function ChatMessages() {
 
         messagesWrapperRef.current?.addEventListener('scroll', handleScroll);
 
-        // Проверка при открытии (если сообщения помещаются на экране)
+        // проверка при открытии (если сообщения помещаются на экране)
         if (messagesWrapperRef.current) {
             const { scrollHeight, clientHeight } = messagesWrapperRef.current;
             if (scrollHeight <= clientHeight) {

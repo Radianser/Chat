@@ -6,10 +6,10 @@ import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 
 export default function ChatDirect() {
-    const currentChatMessages = useChatStore((store) => store.state.currentChatMessages);
-    const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const currentUser = useUserStore((state) => state.state);
     const currentChat = useChatStore((store) => store.state.currentChat);
+    const currentChatMessages = useChatStore((store) => store.state.currentChatMessages);
+    const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const socket = useSocket();
     const [editingMessage, setEditingMessage] = useState<Record<string, any>>({
         id: '',

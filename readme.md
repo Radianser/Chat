@@ -1,5 +1,6 @@
 <div>http://localhost:3000 — backend</div>
-<div>http://localhost:5173 — frontend</div>
+<div>http://localhost:5173 — frontend dev</div>
+<div>http://localhost:4173 — frontend build</div>
 <br>
 <div>I use my own framework based on Node.js/Express on the backend (API), React/TypeScript on the frontend (SPA), databases: MySQL, MongoDB, PostgreSQL</div>
 

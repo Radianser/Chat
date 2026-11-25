@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useSocket } from '@socket/SocketContext';
 import { useChatStore } from '@src/stores/chat/chatStore.ts';
 import { useUserStore } from '@src/stores/user/userStore';

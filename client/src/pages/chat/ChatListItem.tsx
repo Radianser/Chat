@@ -23,8 +23,6 @@ export default function ChatListItem({ chat }:any) {
         if (!socket) return;
 
         const setUserOnlineIndicator = (user: Record<string, any>) => {
-            // console.log('setUserOnlineStatus: ', user); 8 раз выводится - разобраться
-
             let isCurrentParticipant = chat.participants.find((id: number) => id == user.userId);
             if (
                 chat.type == 'direct' &&
@@ -52,7 +50,6 @@ export default function ChatListItem({ chat }:any) {
         }
     }, [socket, chat._id]);
     
-    // let chatImg: string = import.meta.env.VITE_WEB_SERVER_URL;
     let chatImg: string = '';
     if (chat.type == 'direct') {
         let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
@@ -69,12 +66,12 @@ export default function ChatListItem({ chat }:any) {
 
     let isSelected: any = false;
     if (chat.type == 'direct') {
-        // Находим ID собеседника в текущем выбранном чате
+        // находим id собеседника в текущем выбранном чате
         const currentChatCompanionId = currentChat.chatUsers 
             ? Object.keys(currentChat.chatUsers).find(id => String(id) !== String(currentUser.id)) 
             : null;
 
-        // Находим ID собеседника в чате из списка
+        // находим id собеседника в чате из списка
         const chatCompanionId = chat.chatUsers 
             ? Object.keys(chat.chatUsers).find(id => String(id) !== String(currentUser.id)) 
             : null;
@@ -89,7 +86,6 @@ export default function ChatListItem({ chat }:any) {
         if (String(currentChat._id) === String(chat._id) || !socket) return;
         
         setCurrentChat(chat);
-        // socket.emit('join_chat', chat._id);
 
         if (ergonomics.windowWidth < Number(import.meta.env.VITE_MOBILE_DEVICE_WIDTH)) {
             setErgonomics(prev => ({

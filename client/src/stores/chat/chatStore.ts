@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { iChatStore } from '@stores/chat/interfaces';
 import * as api from '@api/rest/chat';
 
-export const useChatStore = create<iChatStore>((set, get) => ({
+export const useChatStore = create<iChatStore>((set) => ({
 	state: {
 		chatList: [],
 		currentChat: {},

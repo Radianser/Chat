@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
-import "./csrf-interceptor";
+import "./csrf";
 
 interface RequestParams {
     url: string;

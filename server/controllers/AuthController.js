@@ -109,9 +109,17 @@ export default class AuthController {
         }
     }
 
-    async logout_user(request, response, next) {
-        await regenerateSession(request, next);
-        return response.status(200).type('application/json').send({ 'code': 'OK', 'result': null });
+    logout_user(request, response, next) {
+        request.session.destroy((err) => {
+            if (err) {
+                console.error('Ошибка при уничтожении сессии:', err);
+                return response.status(500).json({ error: 'Logout failed' });
+            }
+            
+            response.clearCookie('sid');
+            
+            return response.status(200).type('application/json').send({ 'code': 'OK', 'result': null });
+        });
     }
 
     create_url_link(action, user_id) {

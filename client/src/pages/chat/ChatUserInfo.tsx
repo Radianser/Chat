@@ -5,32 +5,29 @@ import { MobileContext } from '@src/context/mobileContext';
 import { useSocket } from '@socket/SocketContext';
 
 export default function ChatUserInfo() {
-    const user = useUserStore((state) => state.state);
-    const chat = useChatStore((store) => store.state.currentChat);
+    const currentUser = useUserStore((state) => state.state);
+    const currentChat = useChatStore((store) => store.state.currentChat);
     const defaultChatImg = useChatStore(store => store.state.defaultChatImg);
     const clearCurrentChat = useChatStore(store => store.clearCurrentChat);
+    const socket = useSocket();
+    const [chatOnlineStatus, setChatOnlineStatus] = useState<string>('');
     const context = useContext(MobileContext);
     if (!context) return null;
     const { ergonomics, setErgonomics } = context;
-    const socket = useSocket();
-    const [chatOnlineStatus, setChatOnlineStatus] = useState<string>('');
 
     useEffect(() => {
         if (!socket) return;
 
-        const companionsId = Object.keys(chat.chatUsers).filter(id => String(id) !== String(user.id));
-        console.log('companionsId: ', companionsId);
+        const companionsId = Object.keys(currentChat.chatUsers).filter(id => String(id) !== String(currentUser.id));
         
         const setUserOnlineStatus = (user: Record<string, any>) => {
-            // console.log('setUserOnlineStatus: ', user); 8 раз выводится - разобраться
-
             if (
-                chat.type == 'direct' &&
+                currentChat.type == 'direct' &&
                 user.isOnline
             ) {
                 setChatOnlineStatus(() => 'Online');
             } else if (
-                chat.type == 'direct' &&
+                currentChat.type == 'direct' &&
                 !user.isOnline
             ) {
                 setChatOnlineStatus(() => `${(new Date(user.lastSeen)).toLocaleDateString('en-EN', { 
@@ -40,9 +37,7 @@ export default function ChatUserInfo() {
                     month: 'short',
                     // year: 'numeric'
                 })}`);
-            } else if (chat.type == 'group') {
-
-            }
+            } else if (currentChat.type == 'group') {}
         }
 
         socket.emit('get_user_status', [...companionsId]);
@@ -51,20 +46,20 @@ export default function ChatUserInfo() {
         return () => {
             socket.off('user_status_received', setUserOnlineStatus)
         }
-    }, [socket, chat.chatUsers]);
+    }, [socket, currentChat._id]);
     
     let chatImg: string = '';
-    if (chat.type == 'direct') {
-        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
-        chatImg += (chat.chatUsers[companionId]?.img || defaultChatImg);
+    if (currentChat.type == 'direct') {
+        let companionId = Object.keys(currentChat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
+        chatImg += (currentChat.chatUsers[companionId]?.img || defaultChatImg);
     } else {
-        chatImg += (chat.chatImg ? chat.chatImg : defaultChatImg);
+        chatImg += (currentChat.chatImg ? currentChat.chatImg : defaultChatImg);
     }
 
-    let chatTitle: string = chat.title;
-    if (chat.type == 'direct') {
-        let companionId = Object.keys(chat.chatUsers).find(id => String(id) !== String(user.id)) as string;
-        chatTitle = chat.chatUsers[companionId].name
+    let chatTitle: string = currentChat.title;
+    if (currentChat.type == 'direct') {
+        let companionId = Object.keys(currentChat.chatUsers).find(id => String(id) !== String(currentUser.id)) as string;
+        chatTitle = currentChat.chatUsers[companionId].name
     }
 
     function handleClick() {

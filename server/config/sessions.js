@@ -1,5 +1,4 @@
 import '../env.js';
-import { setCsrfToken } from '#middlewares/SetCsrfToken.js';
 import MongoStore from 'connect-mongo';
 
 const interval = 60 * 60 * 1000; // 1 час в миллисекундах

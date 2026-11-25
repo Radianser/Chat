@@ -4,7 +4,7 @@ import * as api from '@api/rest/auth';
 
 export const useUserStore = create<iUserStore>((set, get) => ({
 	state: {
-		id: 0,
+		id: null,
 		name: '',
 		email: '',
 		img: '',
@@ -119,14 +119,8 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 	},
 
 	clearError: (fieldName: string) => {
-		// console.log('fieldName: ', fieldName);
-
 		set((store) => {
-			// store - это весь iUserStore
-			// store.state - это iUserState
-			// store.state.errors - это Record<string, string>
-			// На русском: "Из объекта ошибок вытащи поле fieldName в переменную removed (она нам не нужна), а всё остальное сложи в restErrors"
-			
+			// на русском: "Из объекта ошибок вытащи поле fieldName в переменную removed (она нам не нужна), а всё остальное сложи в restErrors"
 			const { [fieldName]: removed, ...restErrors } = store.state.errors;
 			
 			return {
@@ -159,10 +153,11 @@ export const useUserStore = create<iUserStore>((set, get) => ({
 	resetUser: () => {
 		set(() => ({
 			state: {
-				id: 0,
+				id: null,
 				name: '',
 				email: '',
 				img: '',
+				last_seen_at: '',
 				errors: {},
 			}
 		}));

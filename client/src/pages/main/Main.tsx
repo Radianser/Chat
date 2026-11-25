@@ -10,14 +10,10 @@ import './style.css';
 import { MobileContext } from '@src/context/mobileContext';
 import { useSocket } from '@socket/SocketContext';
 
-// import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей
-// import 'bootstrap'; // Импорт логики (JS)
-
-// переименовать в welcome
 export default function Main() {
     const { theme, toggleTheme } = useTheme();
-    const { getAuthUser, resetUser, logoutUser } = useUserStore.getState(); // useUserStore.getState(); это ломает реактивность, так можно импортировать только функции
-    const userState = useUserStore((store) => store.state); // для сохранения реактивности при изменении state
+    const { getAuthUser, logoutUser } = useUserStore.getState();
+    const currentUser = useUserStore((store) => store.state);
     const [auth, setAuth] = useState('auth');
     const [isLoading, setIsLoading] = useState(true);
     const [mobileErgonomic, setMobileErgonomic] = useState({
@@ -39,17 +35,19 @@ export default function Main() {
     }, []);
 
     useEffect(() => {
-        getAuthUser().finally(() => {
+        const getUser = async () => {
+            await getAuthUser();
             setIsLoading(false);
-        });
-        
-        (window as any).user = userState;
+        };
+
+        getUser();
+
+        (window as any).user = currentUser;
         const unsubscribe = useUserStore.subscribe((newState) => {
             (window as any).user = newState.state;
         });
         
         return () => {
-            resetUser();
             unsubscribe();
             delete (window as any).user;
         };
@@ -79,7 +77,8 @@ export default function Main() {
         );
     }
 
-    if (!userState.id) {
+    console.log('currentUser: ', currentUser);
+    if (!currentUser.id) {
         return (
             <div className='chat-auth'>
                 <title>Authentication</title>
@@ -104,7 +103,7 @@ export default function Main() {
 
             <div className='chat-header'>
                 <div>
-                    <p>{userState.name}</p>
+                    <p>{currentUser.name}</p>
                 </div>
                 <div className={theme == 'dark' ? 'theme-switcher dark' : 'theme-switcher light'} onClick={() => toggleTheme()}></div>
                 <div>

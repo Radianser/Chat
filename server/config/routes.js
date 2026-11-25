@@ -5,7 +5,6 @@ const routes = [
         controller: 'AuthController',
         action: 'get_auth_user',
         middlewares: []
-        // middlewares: ['VerifyCsrfToken', 'UserActivityTracker']
     },
     {
         path: '/authorize-user/',
@@ -120,7 +119,7 @@ const registerRoute = async (route) => {
 
 		// 2. Динамический импорт мидлваров
 		const middlewares = await Promise.all(
-			(['VerifyCsrfToken', 'UserActivityTracker', ...route.middlewares] || []).map(async (name) => {
+			(['CsrfMiddleware', ...route.middlewares, 'UserActivityMiddleware'] || []).map(async (name) => {
 				if (!middlewaresCache.has(name)) {
                     const MiddlewareModule = await import(`#middlewares/${name}.js`);
 					// Сохраняем именно функцию
