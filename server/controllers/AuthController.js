@@ -1,5 +1,3 @@
-import path from 'path';
-import fs from 'fs';
 import User from '#models/User.js';
 import Token from '#models/Token.js';
 import bcrypt from 'bcrypt';
@@ -8,7 +6,6 @@ import RegFormValidation from '#validation/RegForm.js'
 import PassFormValidation from '#validation/PassForm.js'
 import FieldsValidation from '#validation/FieldsValidation.js'
 import MailController from '#controllers/MailController.js'
-import { regenerateSession } from '#config/sessions.js';
 
 export default class AuthController {
     constructor() {}
@@ -26,16 +23,24 @@ export default class AuthController {
     async authorize_user(request, response, next) {
         let validated = await (new AuthFormValidation).check(request.body);
 
-        if(validated.success) {
-            await regenerateSession(request);
+        if (validated.success) {
             request.session.user = validated.user;
+            request.session.save((err) => {
+                if (err) return response.status(500).json({ error: 'Session save failed' });
+                
+                return response.status(200).type('application/json').send({
+                    'validated': true,
+                    'user': request.session.user,
+                    'errors': validated.errors
+                });
+            });
+        } else {
+            return response.status(200).type('application/json').send({
+                'validated': false,
+                'user': null,
+                'errors': validated.errors
+            });
         }
-
-        return response.status(200).type('application/json').send({
-            'validated': validated.success,
-            'user': request.session.user || null,
-            'errors': validated.errors
-        });
     }
 
     async registrate_user(request, response, next) {
@@ -78,14 +83,22 @@ export default class AuthController {
     async change_password(request, response, next) {
         let validated = await (new PassFormValidation).check(request.body.password, request.body.confirm);
 
-        if(validated.success) {
+        if (validated.success) {
             const password = await bcrypt.hash(validated.password.value, 10);
             const user = await (new User).setNewPassword(request.body.id, password);
 
-            await regenerateSession(request);
             request.session.user = user;
+            request.session.save((err) => {
+                if (err) return response.status(500).json({ error: 'Session save failed' });
+                
+                return response.status(200).type('application/json').send({
+                    'validated': true,
+                    'user': request.session.user,
+                    'errors': validated.errors
+                });
+            });
         }
-
+        
         return response.status(200).type('application/json').send({
             'validated': validated.success,
             'errors': validated.errors
@@ -95,17 +108,23 @@ export default class AuthController {
     async verify_token(request, response, next) {
         const token = await (new Token).find(request.body.token, request.body.user_id);
 
-        if(token && Date.now() - new Date(token.created_at).getTime() < 15 * 60 * 1000) {
-            const userModel = new User();
-            await userModel.verifyUser(request.body.user_id);
-            const user = await userModel.findById(request.body.user_id);
+        if (token && Date.now() - new Date(token.created_at).getTime() < 15 * 60 * 1000) {
+            const user = await (new User).verifyUser(request.body.user_id);
 
-            await regenerateSession(request, next);
             request.session.user = user;
-
-            return response.status(200).type('application/json').send({ 'code': 'OK', 'result': process.env.WEB_CLIENT_URL });
+            request.session.save((err) => {
+                if (err) return response.status(500).json({ error: 'Session save failed' });
+                
+                return response.status(200).type('application/json').send({
+                    'code': 'OK',
+                    'result': process.env.WEB_CLIENT_URL
+                });
+            });
         } else {
-            return response.status(200).type('application/json').send({ 'code': 'ERROR', 'result': 'Link has expired' });
+            return response.status(200).type('application/json').send({
+                'code': 'ERROR',
+                'result': 'Link has expired'
+            });
         }
     }
 
@@ -118,7 +137,10 @@ export default class AuthController {
             
             response.clearCookie('sid');
             
-            return response.status(200).type('application/json').send({ 'code': 'OK', 'result': null });
+            return response.status(200).type('application/json').send({
+                'code': 'OK',
+                'result': null
+            });
         });
     }
 

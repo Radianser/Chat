@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => {
         envDir: '../',
         server: {
             host: true,
+            // для дева и прода должны быть разные порты
             port: Number(env.VITE_WEB_CLIENT_PORT),
             proxy: {
                 '/api': {

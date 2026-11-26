@@ -8,8 +8,14 @@ export const setCsrfToken = (req, res, next) => {
     if (!req.session.csrf_token || req.session.csrf_token === '') {
         req.session.csrf_token = generateCsrfToken();
         console.log('🪙 CSRF токен создан:', req.session.csrf_token.substring(0, 10) + '...');
+
+        req.session.save((err) => {
+            if (err) console.error('Ошибка сохранения сессии:', err);
+            next();
+        });
+    } else {
+        next();
     }
-    next();
 };
 
 export const verifyCsrfToken = (req, res, next) => {

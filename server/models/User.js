@@ -28,7 +28,8 @@ export default class User {
             // return rows[0];
 
             const query = `
-                SELECT * FROM users
+                SELECT id, name, email, created_at, verified_at, img, last_seen_at
+                FROM users
                 WHERE id=$1
             `;
             const result = await db.pg.query(query, [id]);
@@ -87,6 +88,7 @@ export default class User {
                 UPDATE users
                 SET verified_at=NOW()
                 WHERE id=$1
+                RETURNING id, name, email, created_at, verified_at, img, last_seen_at 
             `;
             const result = await db.pg.query(query, [id]);
             return result.rows[0] || null;
@@ -107,7 +109,7 @@ export default class User {
             const query = `
                 UPDATE users
                 SET password=$1 WHERE id=$2
-                RETURNING id, email, name, created_at, verified_at
+                RETURNING id, name, email, created_at, verified_at, img, last_seen_at
             `;
             const result = await db.pg.query(query, [password, id]);
             return result.rows[0] || null;

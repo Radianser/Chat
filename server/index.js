@@ -8,7 +8,7 @@ import cors from 'cors';
 
 import { createServer } from 'node:http';
 import { initRoutes } from '#config/routes.js';
-import { sessionParams, sessionDrop } from '#config/sessions.js';
+import { sessionParams } from '#config/sessions.js';
 import { initDatabases } from "#config/db_conn.js";
 import { setCsrfToken } from '#middlewares/CsrfMiddleware.js';
 import { initSocket } from "./socket.js";
@@ -36,13 +36,10 @@ app.use(express.urlencoded({ extended: true })); // для обычных фор
 // 4. Сессии и CSRF
 app.use(cookieParser(process.env.secret));
 app.use(expressSession(sessionParams));
-app.use(sessionDrop);
-app.use(setCsrfToken); // устанавливаем CSRF токен
+app.use(setCsrfToken);
 
 // 5. Эндпоинт для получения CSRF токена
-app.get('/csrf-token', (req, res) => res.json({
-    csrfToken: req.session.csrf_token
-}));
+app.get('/csrf-token', (req, res) => res.json({ csrfToken: req.session.csrf_token }));
 
 // 6. Запуск сервера
 const startServer = async () => {
