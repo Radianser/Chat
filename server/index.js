@@ -24,7 +24,10 @@ app.use((req, res, next) => {
 
 // 2. CORS (обязательно до сессий и роутов)
 app.use(cors({
-    origin: [process.env.WEB_CLIENT_URL],
+    origin: [
+        `${process.env.VITE_WEB_CLIENT_DOMAIN}:${process.env.VITE_WEB_CLIENT_DEV_PORT}`,
+        `${process.env.VITE_WEB_CLIENT_DOMAIN}:${process.env.VITE_WEB_CLIENT_PROD_PORT}`
+    ],
     credentials: true
 }));
 

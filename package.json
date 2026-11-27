@@ -8,8 +8,9 @@
     "preview:client": "cd client && npm run preview",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
-    "start": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "build": "npm run build:client && concurrently \"npm run preview:client\" \"npm run dev:server\""
+    "prod:server": "cd server && npm run start",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "prod": "npm run build:client && concurrently \"npm run preview:client\" \"npm run prod:server\""
   },
   "keywords": [],
   "author": "",

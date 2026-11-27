@@ -1,6 +1,3 @@
-import path from 'path';
-import fs from 'fs';
-import User from '#models/User.js';
 import nodemailer from 'nodemailer';
 
 // Создаём объект "транспортера" — он отвечает за соединение с почтовым сервером
@@ -56,10 +53,14 @@ export default class MailController {
     }
 
     get_registration_template(url) {
-        return `<div style='background-color:#edf2f7;'>
+        let appClientUrl = process.env.APP_MODE === 'prod'
+            ? process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_PROD_PORT
+            : process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_DEV_PORT;
+        
+            return `<div style='background-color:#edf2f7;'>
             <div style='font-size:16px;box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);'>
                 <div style='text-align:center;padding:20px 0;'>
-                    <a href='${process.env.WEB_CLIENT_URL}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
+                    <a href='${appClientUrl}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
                 </div>
                 <div style='width:55%;margin: 0 auto;background-color:#ffffff;padding:40px;border-radius:10px;'>
                     <div style='font-weight:bold;margin-bottom:20px;color:#2d3748;'>
@@ -94,10 +95,14 @@ export default class MailController {
     }
 
     get_password_restore_template(url) {
-        return `<div style='background-color:#edf2f7;'>
+        let appClientUrl = process.env.APP_MODE === 'prod'
+            ? process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_PROD_PORT
+            : process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_DEV_PORT;
+        
+            return `<div style='background-color:#edf2f7;'>
             <div style='font-size:16px;box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);'>
                 <div style='text-align:center;padding:20px 0;'>
-                    <a href='${process.env.WEB_CLIENT_URL}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
+                    <a href='${appClientUrl}' style='font-weight:bold;font-size:22px;color:#2d3748;text-decoration:none;'>${process.env.APP_NAME}</a>
                 </div>
                 <div style='width:55%;margin: 0 auto;background-color:#ffffff;padding:40px;border-radius:10px;'>
                     <div style='font-weight:bold;margin-bottom:20px;color:#2d3748;'>

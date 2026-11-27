@@ -11,7 +11,8 @@ export const initSocket = async (server) => {
     io = new Server(server, {
         cors: {
             origin: [
-                process.env.WEB_CLIENT_URL
+                `${process.env.VITE_WEB_CLIENT_DOMAIN}:${process.env.VITE_WEB_CLIENT_DEV_PORT}`,
+                `${process.env.VITE_WEB_CLIENT_DOMAIN}:${process.env.VITE_WEB_CLIENT_PROD_PORT}`
             ],
             methods: ["GET", "POST"],
             credentials: true,

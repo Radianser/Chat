@@ -189,7 +189,14 @@ export default function ChatMessages() {
 
     return (
         <div className="chat-messages" ref={messagesWrapperRef}>
-            { currentChat.type === 'direct' ? <ChatDirect/> : <ChatGroup/> }
+            { 
+                currentChat.type === 'direct'
+                    ?   <ChatDirect
+                            scrollToBottom={scrollToBottom}
+                            isAtBottom={isAtBottom}
+                        />
+                    :   <ChatGroup/> 
+            }
             {
                 typingUsers.length === 1
                     ?   <div className='typing-indicator'>

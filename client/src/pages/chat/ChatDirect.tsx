@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSocket } from '@socket/SocketContext';
 import { useChatStore } from '@src/stores/chat/chatStore.ts';
 import { useUserStore } from '@src/stores/user/userStore';
 import SentMarkIcon from '@assets/checkMark.svg?react';
 import SeenMarkIcon from '@assets/doneMark.svg?react';
 
-export default function ChatDirect() {
+export default function ChatDirect({ scrollToBottom, isAtBottom }: {
+    scrollToBottom: () => void,
+    isAtBottom: () => boolean
+}) {
     const currentUser = useUserStore((state) => state.state);
     const currentChat = useChatStore((store) => store.state.currentChat);
     const currentChatMessages = useChatStore((store) => store.state.currentChatMessages);
@@ -16,6 +19,7 @@ export default function ChatDirect() {
         text: '',
         isEditing: false
     });
+    const initialMessageText = useRef('');
 
     if (!currentChatMessages.length) {
         return (
@@ -29,30 +33,48 @@ export default function ChatDirect() {
         if (e.code === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey) {
             e.preventDefault();
             
-            socket?.emit('update_message', {
-                ...message,
-                text: editingMessage.text
-            });
+            if (initialMessageText.current !== editingMessage.text) {
+                socket?.emit('update_message', {
+                    ...message,
+                    text: editingMessage.text
+                });
+            }
 
             setEditingMessage({
                 id: '',
                 text: '',
                 isEditing: false
             });
+            
+            initialMessageText.current = '';
         }
     }
 
     const updateMessage = (message: Record<string, any>) => {
-        socket?.emit('update_message', {
-            ...message,
-            text: editingMessage.text
-        });
+        if (initialMessageText.current !== editingMessage.text) {
+            socket?.emit('update_message', {
+                ...message,
+                text: editingMessage.text
+            });
+        }
 
         setEditingMessage({
             id: '',
             text: '',
             isEditing: false
         });
+
+        initialMessageText.current = '';
+    }
+
+    const handleClick = (message: Record<string, any>) => {
+        setEditingMessage({
+            id: message._id,
+            text: message.text,
+            isEditing: true
+        });
+
+        if (isAtBottom()) scrollToBottom();
     }
     
     return (
@@ -87,17 +109,13 @@ export default function ChatDirect() {
                                                         text: e.target.value
                                                     }))
                                                 }
+                                                onFocus={(e) => initialMessageText.current = e.target.value}
                                                 onBlur={() => updateMessage(message)}
                                                 onKeyUp={(e) => updateMessageOnEnter(e, message)}
                                                 autoFocus
                                             />
                                         :   <div
-                                                onClick={() => setEditingMessage({
-                                                        id: message._id,
-                                                        text: message.text,
-                                                        isEditing: true
-                                                    })
-                                                }
+                                                onClick={() => handleClick(message)}
                                             >
                                                 {message.text}
                                             </div>

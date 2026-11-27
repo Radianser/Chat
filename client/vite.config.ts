@@ -18,22 +18,22 @@ export default defineConfig(({ mode }) => {
         envDir: '../',
         server: {
             host: true,
-            // для дева и прода должны быть разные порты
-            port: Number(env.VITE_WEB_CLIENT_PORT),
+            port: process.env.APP_MODE === 'prod'
+                ? Number(process.env.VITE_WEB_CLIENT_PROD_PORT)
+                : Number(process.env.VITE_WEB_CLIENT_DEV_PORT),
             proxy: {
                 '/api': {
-                    target: env.VITE_WEB_SERVER_URL,
+                    target: env.VITE_SERVER_URL,
                     changeOrigin: true,
                     rewrite: (p) => p.replace(/^\/api/, ''),
                     ws: false,
                 },
                 '/resources': {
-                    target: env.VITE_WEB_SERVER_URL,
+                    target: env.VITE_SERVER_URL,
                     changeOrigin: true,
-                    // rewrite не нужен, так как путь /resources совпадает
                 },
                 '/socket.io': {
-                    target: env.VITE_WEB_SERVER_URL,
+                    target: env.VITE_SERVER_URL,
                     ws: true, // Включаем WebSocket
                     changeOrigin: true,
                 }

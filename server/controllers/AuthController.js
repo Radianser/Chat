@@ -117,7 +117,9 @@ export default class AuthController {
                 
                 return response.status(200).type('application/json').send({
                     'code': 'OK',
-                    'result': process.env.WEB_CLIENT_URL
+                    'result': process.env.APP_MODE === 'prod'
+                        ? process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_PROD_PORT
+                        : process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_DEV_PORT
                 });
             });
         } else {
@@ -147,7 +149,11 @@ export default class AuthController {
     create_url_link(action, user_id) {
         const token = this.get_random_string(40);
         (new Token).create(token, user_id);
-        return process.env.WEB_CLIENT_URL + `/${action}/${user_id}/${token}`;
+
+        let url = process.env.APP_MODE === 'prod'
+            ? process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_PROD_PORT
+            : process.env.VITE_WEB_CLIENT_DOMAIN + ':' + process.env.VITE_WEB_CLIENT_DEV_PORT;
+        return url + `/${action}/${user_id}/${token}`;
     }
 
     get_random_string(length = 30) {
